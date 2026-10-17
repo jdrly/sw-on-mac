@@ -35,16 +35,21 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <Font cssVariable="--font-inter" preload={[{ style: 'normal' }]} />
     <Font cssVariable="--font-jetbrains-mono" />
 
-    <!-- The saved theme, or the system's, before the first paint (no flash) -->
+    <!-- The saved theme before the first paint (no flash): dark by default, 'auto' follows the system -->
     <script is:inline>
       (() => {
         const saved = localStorage.getItem('theme');
-        const theme = saved ?? (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
-        document.documentElement.dataset.theme = theme;
+        const system = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        document.documentElement.dataset.theme = saved === 'light' ? 'light' : saved === 'auto' ? system : 'dark';
       })();
     </script>
   </head>
   <body class="min-h-dvh bg-bg text-fg antialiased">
     <slot />
+    <script>
+      import '../scripts/theme';
+      import '../scripts/smooth-scroll';
+      import '../scripts/accordion';
+    </script>
   </body>
 </html>

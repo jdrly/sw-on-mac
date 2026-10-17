@@ -1,0 +1,273 @@
+---
+// Animated warp field for the hero: stars stream out of the jump point towards the viewer.
+// A <canvas> drawn by one rAF loop. Expects to sit inside an element with [data-warp-root]
+// that also contains the jump point marker, [data-warp-anchor] (a zero-size positioned box
+// whose top-left corner is the vanishing point). When it runs it sets data-warp="on" on the
+// root, so the static SVG burst can step aside. No JS or prefers-reduced-motion: nothing
+// runs and the static burst stays.
+---
+
+<canvas class="warp pointer-events-none absolute inset-0 size-full" data-warp-canvas aria-hidden="true"></canvas>
+
+<style>
+  .warp {
+    opacity: 0;
+    transition: opacity 0.6s ease-out;
+  }
+  :global([data-warp='on']) .warp {
+    opacity: 1;
+  }
+</style>
+
+<script>
+  // Tuning. Depth z runs from 1 (far plane, at the jump point) to NEAR (at the viewer).
+  // A star at depth z is drawn SCALE / z of its spawn offset away from the vanishing point.
+  const SCALE = 0.18;
+  const NEAR = 0.01;
+  const CRUISE = 0.15; // depth units per second
+  const JUMP = 1.3; // seconds from near-still to cruise
+  const TRAIL = 0.3; // streak length, in seconds of travel
+  const MAX_STARS = 600;
+  const PX_PER_STAR = 3600; // canvas area per star (CSS px²)
+  const MARGIN = 60; // px outside the canvas before a star respawns
+  const PARALLAX = 20; // px of pointer parallax for the nearest stars
+  const REACH = 700; // px below the jump point worth filling (further down sits the download console)
+
+  function initWarp(canvas: HTMLCanvasElement, root: HTMLElement, anchor: HTMLElement) {
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const html = document.documentElement;
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+    const finePointer = matchMedia('(hover: hover) and (pointer: fine)');
+
+    // Star state, preallocated: nothing is allocated per frame.
+    const X = new Float32Array(MAX_STARS);
+    const Y = new Float32Array(MAX_STARS);
+    const Z = new Float32Array(MAX_STARS);
+    const O = new Float32Array(MAX_STARS); // base opacity
+    const W = new Float32Array(MAX_STARS); // base width
+    const T = new Uint8Array(MAX_STARS); // tint: 0 fg, 1 swtor, 2 swgl
+    const colors = ['#eef1f6', '#ff3d2e', '#2fd5ff'];
+    let alphaMul = 1;
+
+    let count = 0;
+    let w = 0;
+    let h = 0;
+    let vx = 0;
+    let vy = 0;
+    let fieldH = 0; // height of the spawn area
+    let minR2 = 0;
+
+    let raf = 0;
+    let running = false;
+    let last = 0;
+    let age = 0; // seconds of animation so far (drives the load jump)
+    let lastScroll = window.scrollY;
+    let boost = 0;
+    let px = 0;
+    let py = 0;
+    let tpx = 0;
+    let tpy = 0;
+
+    let onScreen = false;
+    let pageVisible = !document.hidden;
+
+    function readColors() {
+      const cs = getComputedStyle(html);
+      colors[0] = cs.getPropertyValue('--c-fg').trim() || colors[0];
+      colors[1] = cs.getPropertyValue('--c-swtor').trim() || colors[1];
+      colors[2] = cs.getPropertyValue('--c-swgl').trim() || colors[2];
+      alphaMul = html.dataset.theme === 'light' ? 0.7 : 1;
+    }
+
+    // A new star somewhere in the screen rectangle (as seen at depth SCALE), not too close to
+    // the vanishing point: stars there would reach the viewer before leaving the screen.
+    function spawn(i: number, z: number) {
+      let x = 0;
+      let y = 0;
+      do {
+        x = -vx - MARGIN + Math.random() * (w + 2 * MARGIN);
+        y = -vy - MARGIN + Math.random() * (fieldH + 2 * MARGIN);
+      } while (x * x + y * y < minR2);
+      X[i] = x;
+      Y[i] = y;
+      Z[i] = z;
+    }
+
+    function seed() {
+      for (let i = 0; i < count; i++) {
+        spawn(i, NEAR + Math.random() * (1 - NEAR));
+        const t = Math.random();
+        T[i] = t < 0.08 ? 1 : t < 0.18 ? 2 : 0;
+        O[i] = 0.35 + Math.random() * 0.65;
+        W[i] = Math.random() < 0.15 ? 1.5 : 1;
+      }
+    }
+
+    function measure() {
+      if (reduce.matches) return; // no canvas backing store when it will never run
+      const r = root.getBoundingClientRect();
+      const a = anchor.getBoundingClientRect();
+      const nw = Math.round(r.width);
+      const nh = Math.round(r.height);
+      vx = a.left - r.left;
+      vy = a.top - r.top;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const bw = Math.round(nw * dpr);
+      const bh = Math.round(nh * dpr);
+      if (canvas.width !== bw || canvas.height !== bh) {
+        canvas.width = bw;
+        canvas.height = bh;
+      }
+      ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx!.lineCap = 'round';
+      const nfh = Math.min(nh, vy + REACH);
+      const far = Math.max(vx, nw - vx, vy, nfh - vy) + MARGIN;
+      const minR = (far * NEAR * 1.3) / SCALE;
+      minR2 = minR * minR;
+      const resized = nw !== w || nh !== h || nfh !== fieldH;
+      w = nw;
+      h = nh;
+      fieldH = nfh;
+      if (resized) {
+        count = Math.max(60, Math.min(MAX_STARS, Math.round((w * fieldH) / PX_PER_STAR)));
+        seed();
+      }
+    }
+
+    // Speed over time: near-still, a punch through ~2x cruise at the jump, then cruise.
+    function speedAt(t: number) {
+      if (t > 2.4) return CRUISE;
+      const p = Math.min(t / JUMP, 1);
+      const ease = p * p * (3 - 2 * p);
+      const d = (t - 1.0) / 0.32;
+      return CRUISE * (0.03 + 0.97 * ease + 1.1 * Math.exp(-d * d));
+    }
+
+    function draw(dt: number, v: number) {
+      ctx!.clearRect(0, 0, w, h);
+      const tail = Math.max(v * TRAIL, 0.004);
+      const step = v * dt;
+      // One pass per tint so the stroke colour is set three times per frame, not per star.
+      for (let tint = 0; tint < 3; tint++) {
+        ctx!.strokeStyle = colors[tint];
+        for (let i = 0; i < count; i++) {
+          if (T[i] !== tint) continue;
+          let z = Z[i] - step;
+          if (z < NEAR) {
+            spawn(i, 0.94 + Math.random() * 0.06);
+            continue;
+          }
+          Z[i] = z;
+          const k = SCALE / z;
+          const hx = vx + X[i] * k + px * (1 - z);
+          const hy = vy + Y[i] * k + py * (1 - z);
+          if (hx < -MARGIN || hx > w + MARGIN || hy < -MARGIN || hy > h + MARGIN) {
+            spawn(i, 0.94 + Math.random() * 0.06);
+            continue;
+          }
+          const f = 1 - z; // nearness, 0 far .. 1 here
+          const a = O[i] * alphaMul * Math.min(1, f * 1.6);
+          if (a < 0.01) continue;
+          const tz = z + tail;
+          const kt = SCALE / tz;
+          const tx = vx + X[i] * kt + px * (1 - tz);
+          const ty = vy + Y[i] * kt + py * (1 - tz);
+          const mx = (tx + hx) * 0.5;
+          const my = (ty + hy) * 0.5;
+          ctx!.lineWidth = W[i] * (0.45 + 1.9 * f * f * f);
+          // Faint tail half, bright head half: a cheap fade without per-star gradients.
+          ctx!.globalAlpha = a * 0.3;
+          ctx!.beginPath();
+          ctx!.moveTo(tx, ty);
+          ctx!.lineTo(mx, my);
+          ctx!.stroke();
+          ctx!.globalAlpha = a;
+          ctx!.beginPath();
+          ctx!.moveTo(mx, my);
+          ctx!.lineTo(hx, hy);
+          ctx!.stroke();
+        }
+      }
+      ctx!.globalAlpha = 1;
+    }
+
+    function frame(now: number) {
+      raf = requestAnimationFrame(frame);
+      let dt = (now - last) / 1000;
+      last = now;
+      if (dt < 0) dt = 0;
+      else if (dt > 0.05) dt = 0.05;
+      age += dt;
+
+      // Scrolling speeds the ship up a little; eases back to cruise once it stops.
+      const sy = window.scrollY;
+      const sv = dt > 0 ? Math.abs(sy - lastScroll) / dt : 0;
+      lastScroll = sy;
+      const target = Math.min(sv / 1200, 1.5);
+      boost += (target - boost) * (1 - Math.exp(-dt * (target > boost ? 6 : 2)));
+
+      const ease = 1 - Math.exp(-dt * 3);
+      px += (tpx - px) * ease;
+      py += (tpy - py) * ease;
+
+      draw(dt, speedAt(age) * (1 + boost));
+    }
+
+    function start() {
+      if (running) return;
+      running = true;
+      root.dataset.warp = 'on';
+      last = performance.now();
+      lastScroll = window.scrollY;
+      raf = requestAnimationFrame(frame);
+    }
+
+    function stop() {
+      if (!running) return;
+      running = false;
+      cancelAnimationFrame(raf);
+    }
+
+    function update() {
+      if (reduce.matches) {
+        stop();
+        delete root.dataset.warp;
+        ctx!.clearRect(0, 0, w, h);
+      } else if (onScreen && pageVisible) {
+        if (w === 0) measure();
+        start();
+      }
+      else stop();
+    }
+
+    readColors();
+    measure();
+
+    new ResizeObserver(measure).observe(root);
+    new IntersectionObserver((entries) => {
+      onScreen = entries[entries.length - 1].isIntersecting;
+      update();
+    }).observe(root);
+    new MutationObserver(readColors).observe(html, { attributes: true, attributeFilter: ['data-theme'] });
+    document.addEventListener('visibilitychange', () => {
+      pageVisible = !document.hidden;
+      update();
+    });
+    reduce.addEventListener('change', update);
+    window.addEventListener(
+      'pointermove',
+      (e) => {
+        if (!finePointer.matches) return;
+        tpx = -((e.clientX / window.innerWidth) * 2 - 1) * PARALLAX;
+        tpy = -((e.clientY / window.innerHeight) * 2 - 1) * PARALLAX * 0.6;
+      },
+      { passive: true },
+    );
+  }
+
+  const canvas = document.querySelector<HTMLCanvasElement>('[data-warp-canvas]');
+  const root = canvas?.closest<HTMLElement>('[data-warp-root]');
+  const anchor = root?.querySelector<HTMLElement>('[data-warp-anchor]');
+  if (canvas && root && anchor) initWarp(canvas, root, anchor);
+</script>

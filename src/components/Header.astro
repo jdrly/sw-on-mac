@@ -108,7 +108,7 @@ const chip =
           </svg>
         </summary>
 
-        <div class="fixed inset-x-0 top-16 bottom-0 overflow-y-auto overscroll-contain bg-bg">
+        <div class="fixed inset-x-0 top-16 bottom-0 overflow-y-auto overscroll-contain bg-bg" data-lenis-prevent>
           <div class="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
             <div class="absolute inset-y-0 left-5 w-px bg-line"></div>
             <div class="absolute inset-y-0 left-1/2 w-px bg-line"></div>
@@ -280,43 +280,5 @@ const chip =
     matchMedia('(min-width: 64rem)').addEventListener('change', (e) => {
       if (e.matches) menu.open = false;
     });
-  }
-</script>
-
-<script>
-  // Theme controls anywhere on the page (header toggle, menu, footer). Footer.astro ships the
-  // same script so either works alone; the flag makes sure only one copy binds.
-  const w = window as typeof window & { __swTheme?: boolean };
-  if (!w.__swTheme) {
-    w.__swTheme = true;
-    const root = document.documentElement;
-    const system = () => (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
-    const sync = () => {
-      const saved = localStorage.getItem('theme') ?? 'auto';
-      const theme = root.dataset.theme ?? 'dark';
-      document.querySelectorAll<HTMLElement>('[data-theme-choice]').forEach((b) => {
-        const withAuto = b.closest('[data-theme-group]')?.querySelector('[data-theme-choice="auto"]');
-        b.setAttribute('aria-pressed', String(b.dataset.themeChoice === (withAuto ? saved : theme)));
-      });
-      document.querySelectorAll('[data-theme-toggle]').forEach((b) => {
-        b.setAttribute('aria-label', theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme');
-      });
-      const bg = getComputedStyle(root).getPropertyValue('--c-bg').trim();
-      if (bg) document.querySelector('meta[name="theme-color"]')?.setAttribute('content', bg);
-    };
-    const apply = (choice: string) => {
-      if (choice === 'auto') localStorage.removeItem('theme');
-      else localStorage.setItem('theme', choice);
-      root.dataset.theme = choice === 'auto' ? system() : choice;
-      sync();
-    };
-    document.addEventListener('click', (e) => {
-      const el = (e.target as Element).closest<HTMLElement>('[data-theme-choice],[data-theme-toggle]');
-      if (el) apply(el.dataset.themeChoice ?? (root.dataset.theme === 'dark' ? 'light' : 'dark'));
-    });
-    matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
-      if (!localStorage.getItem('theme')) apply('auto');
-    });
-    sync();
   }
 </script>
