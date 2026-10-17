@@ -1,5 +1,322 @@
 ---
+import Wordmark from './Wordmark.astro';
+import { apps, type AppId } from '../data/apps';
+import { links } from '../data/site';
+import { getLatest } from '../lib/releases';
 
+const latest = await getLatest();
+
+const nav = [
+  { href: '#swtor', index: '01', label: 'SWTOR', indexClass: 'text-swtor' },
+  { href: '#swgl', index: '02', label: 'SWGL', indexClass: 'text-swgl' },
+  { href: '#releases', index: '03', label: 'Releases', indexClass: 'text-fg-3' },
+];
+
+const menu: { href: string; index: string; title: string; app?: AppId }[] = [
+  { href: '#swtor', index: '01', title: apps.swtor.name, app: 'swtor' },
+  { href: '#swgl', index: '02', title: apps.swgl.name, app: 'swgl' },
+  { href: '#safety', index: '03', title: 'Is it safe?' },
+  { href: '#releases', index: '04', title: 'Release log' },
+  { href: '#support', index: '05', title: 'Support' },
+];
+
+const focus = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg';
+const appIds = Object.keys(apps) as AppId[];
+const chip =
+  'hidden items-center gap-2 border border-line px-3 py-2 font-mono text-[11px] tracking-[0.18em] text-fg-2 transition-colors hover:border-line-strong hover:text-fg lg:flex';
 ---
 
-<header id="top" class="p-8 border-b border-line font-mono text-fg-3">Header (stub)</header>
+<header id="top" class="sticky top-0 z-50 h-16 border-b border-line lg:h-18">
+  <!-- The blur sits on its own layer: a backdrop-filter on <header> would trap the fixed menu panel -->
+  <div class="header-bg absolute inset-0 -z-10 bg-bg/80 backdrop-blur-lg" aria-hidden="true"></div>
+
+  <div class="mx-auto flex h-full max-w-[1440px] items-center justify-between gap-6 pr-3 pl-5 lg:px-12">
+    <div class="flex items-center gap-3.5">
+      <a href="#top" class:list={['-m-1 p-1', focus]}>
+        <Wordmark mark class="text-lg tracking-[0.05em] lg:text-xl" />
+      </a>
+      <span class="hidden h-4.5 w-px bg-line-strong xl:block" aria-hidden="true"></span>
+      <span class="hidden font-mono text-[10px] tracking-[0.2em] text-fg-3 xl:block" aria-hidden="true">
+        FIELD KIT // M-SERIES
+      </span>
+    </div>
+
+    <nav aria-label="Main" class="absolute left-1/2 hidden -translate-x-1/2 lg:block">
+      <ul class="flex items-center gap-10">
+        {
+          nav.map((item) => (
+            <li>
+              <a href={item.href} class:list={['group flex items-baseline gap-2 py-2 font-mono uppercase', focus]}>
+                <span class:list={['text-[10px] tracking-[0.2em]', item.indexClass]} aria-hidden="true">
+                  {item.index}
+                </span>
+                <span class="text-xs font-medium tracking-[0.17em] text-fg transition-colors group-hover:text-fg-2">
+                  {item.label}
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="flex items-center gap-2">
+      <a href={links.github} class:list={[chip, focus]}>
+        <svg class="size-[15px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
+          <path d="M9 18c-4.51 2-5-2-7-2" />
+        </svg>
+        GITHUB
+      </a>
+      <a href={links.discord} class:list={[chip, focus]}>
+        <svg class="size-[15px]" viewBox="0 0 20 19" fill="currentColor" aria-hidden="true">
+          <path d="M16.224 3.768a14.5 14.5 0 0 0-3.67-1.153c-.158.286-.343.67-.47.976a13.5 13.5 0 0 0-4.067 0c-.128-.306-.317-.69-.476-.976A14.4 14.4 0 0 0 3.868 3.77C1.546 7.28.916 10.703 1.231 14.077a14.7 14.7 0 0 0 4.5 2.306q.545-.748.965-1.587a9.5 9.5 0 0 1-1.518-.74q.191-.14.372-.293c2.927 1.369 6.107 1.369 8.999 0q.183.152.372.294-.723.437-1.52.74.418.838.963 1.588a14.6 14.6 0 0 0 4.504-2.308c.37-3.911-.63-7.302-2.644-10.309m-9.13 8.234c-.878 0-1.599-.82-1.599-1.82 0-.998.705-1.82 1.6-1.82.894 0 1.614.82 1.599 1.82.001 1-.705 1.82-1.6 1.82m5.91 0c-.878 0-1.599-.82-1.599-1.82 0-.998.705-1.82 1.6-1.82.893 0 1.614.82 1.599 1.82 0 1-.706 1.82-1.6 1.82" />
+        </svg>
+        DISCORD
+      </a>
+
+      <button
+        type="button"
+        data-theme-toggle
+        aria-label="Switch colour theme"
+        class:list={[
+          'grid size-11 place-items-center border border-line text-fg-2 transition-colors hover:border-line-strong hover:text-fg lg:h-[34px] lg:w-9',
+          focus,
+        ]}
+      >
+        <svg class="size-4 lg:size-[15px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 8a2.83 2.83 0 0 0 4 4 4 4 0 1 1-4-4" />
+          <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4" />
+        </svg>
+      </button>
+
+      <!-- Mobile menu: native <details>, so it works without JS; the script below closes it on navigation and Escape -->
+      <details id="site-menu" class="group lg:hidden">
+        <summary
+          class:list={[
+            'flex h-11 cursor-pointer list-none items-center gap-2.5 border border-line-strong px-3.5 font-mono text-[11px] tracking-[0.18em] text-fg select-none group-open:border-fg group-open:bg-fg group-open:text-bg [&::-webkit-details-marker]:hidden',
+            focus,
+          ]}
+        >
+          <span class="group-open:hidden">MENU</span>
+          <span class="hidden group-open:inline">CLOSE</span>
+          <svg class="size-[18px] group-open:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <path d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+          <svg class="hidden size-[18px] group-open:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12" />
+          </svg>
+        </summary>
+
+        <div class="fixed inset-x-0 top-16 bottom-0 overflow-y-auto overscroll-contain bg-bg">
+          <div class="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+            <div class="absolute inset-y-0 left-5 w-px bg-line"></div>
+            <div class="absolute inset-y-0 left-1/2 w-px bg-line"></div>
+            <div class="absolute inset-y-0 right-5 w-px bg-line"></div>
+            <div class="absolute top-[360px] left-[70px] size-[760px] rounded-full border border-line-strong"></div>
+            <div class="absolute top-[480px] left-[190px] size-[520px] rounded-full border border-line-strong"></div>
+          </div>
+
+          <div class="relative mx-auto flex min-h-full max-w-xl flex-col justify-between gap-12 px-5 py-6">
+            <nav aria-label="Menu">
+              <div class="mb-4 flex items-baseline justify-between font-mono tracking-[0.18em]" aria-hidden="true">
+                <span class="text-[11px] text-fg-2">// NAV COMPUTER</span>
+                <span class="text-[10px] text-fg-3">SELECT DESTINATION</span>
+              </div>
+              <ul class="border border-line-strong bg-bg">
+                {
+                  menu.map((item) => {
+                    const release = item.app && latest[item.app];
+                    return (
+                      <li class:list={['border-line not-last:border-b', item.app && `app-${item.app}`]}>
+                        <a
+                          href={item.href}
+                          class="group/item flex min-h-17 items-center gap-3.5 py-3.5 pr-1 hover:bg-surface focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-fg"
+                        >
+                          <span
+                            class:list={[
+                              'w-8 shrink-0 pl-2.5 font-mono text-[11px] tracking-[0.1em]',
+                              item.app ? 'text-accent' : 'text-fg-3',
+                            ]}
+                            aria-hidden="true"
+                          >
+                            {item.index}
+                          </span>
+                          <span class="flex min-w-0 flex-1 flex-col gap-1">
+                            <span class="font-display text-xl leading-tight font-bold tracking-[-0.025em] text-fg">
+                              {item.title}
+                            </span>
+                            <span class="font-mono text-[9px] tracking-[0.16em] text-fg-3 uppercase" aria-hidden="true">
+                              {item.href}
+                            </span>
+                          </span>
+                          {release && (
+                            <span class="border border-accent px-1.5 py-1 font-mono text-[10px] leading-none tracking-[0.1em] text-accent">
+                              {release.version}
+                            </span>
+                          )}
+                          <svg class="mx-1 size-[18px] shrink-0 text-fg-2 transition-transform group-hover/item:translate-x-0.5 group-hover/item:translate-y-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="m7 7 10 10M17 7v10H7" />
+                          </svg>
+                        </a>
+                      </li>
+                    );
+                  })
+                }
+              </ul>
+            </nav>
+
+            <div class="flex flex-col gap-3">
+              <p class="font-mono text-[10px] tracking-[0.2em] text-fg-3">QUICK DOWNLOAD</p>
+              <div class="grid grid-cols-2 gap-2">
+                {
+                  appIds.map((id) => {
+                    const release = latest[id];
+                    return release ? (
+                      <a
+                        href={release.dmgUrl}
+                        class:list={[
+                          `app-${id} flex h-13 items-center justify-center gap-2 bg-accent text-[15px] font-bold text-on-accent hover:brightness-110`,
+                          focus,
+                        ]}
+                        aria-label={`Download ${apps[id].name} ${release.version}`}
+                      >
+                        <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <path d="M12 17V3M6 11l6 6 6-6M19 21H5" />
+                        </svg>
+                        {apps[id].short} {release.version}
+                      </a>
+                    ) : (
+                      <span class="flex h-13 items-center justify-center border border-dashed border-line-strong bg-bg text-[15px] font-semibold text-fg-3">
+                        {apps[id].short} · soon
+                      </span>
+                    );
+                  })
+                }
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                {
+                  [
+                    { href: links.github, label: 'GitHub' },
+                    { href: links.discord, label: 'Discord' },
+                  ].map((l) => (
+                    <a
+                      href={l.href}
+                      class:list={[
+                        'flex h-12 items-center justify-center gap-2 border border-line-strong bg-bg text-[15px] font-semibold text-fg hover:bg-surface',
+                        focus,
+                      ]}
+                    >
+                      {l.label}
+                      <svg class="size-3.5 text-fg-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M7 7h10v10M7 17 17 7" />
+                      </svg>
+                    </a>
+                  ))
+                }
+              </div>
+              <div class="flex items-center justify-between gap-4 pt-2">
+                <span id="menu-appearance" class="font-mono text-[10px] tracking-[0.2em] text-fg-3">APPEARANCE</span>
+                <div class="flex gap-[3px] border border-line-strong bg-bg p-[3px]" role="group" aria-labelledby="menu-appearance" data-theme-group>
+                  {
+                    (['dark', 'light', 'auto'] as const).map((choice) => (
+                      <button
+                        type="button"
+                        data-theme-choice={choice}
+                        aria-pressed="false"
+                        class:list={[
+                          'flex h-[38px] items-center gap-1.5 px-3 font-mono text-[10px] tracking-[0.1em] text-fg-3 uppercase hover:text-fg aria-pressed:bg-fg aria-pressed:text-bg',
+                          focus,
+                        ]}
+                      >
+                        <svg class="size-[13px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          {choice === 'dark' && <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />}
+                          {choice === 'light' && <circle cx="12" cy="12" r="4" />}
+                          {choice === 'light' && <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />}
+                          {choice === 'auto' && <rect width="20" height="14" x="2" y="3" rx="2" />}
+                          {choice === 'auto' && <path d="M8 21h8M12 17v4" />}
+                        </svg>
+                        {choice}
+                      </button>
+                    ))
+                  }
+                </div>
+              </div>
+              <p class="pt-1 font-mono text-[9px] tracking-[0.16em] text-fg-3/60" aria-hidden="true">
+                RA 02H 14M · DEC +41° 07′ · NAV v1
+              </p>
+            </div>
+          </div>
+        </div>
+      </details>
+    </div>
+  </div>
+</header>
+
+<style is:global>
+  @media (max-width: 63.999rem) {
+    html:has(#site-menu[open]) {
+      overflow: hidden;
+    }
+    html:has(#site-menu[open]) .header-bg {
+      background: var(--c-bg);
+    }
+  }
+</style>
+
+<script>
+  // Mobile menu: close on navigation, on Escape, and when the layout grows past it.
+  const menu = document.getElementById('site-menu') as HTMLDetailsElement | null;
+  if (menu) {
+    menu.addEventListener('click', (e) => {
+      if ((e.target as Element).closest('a')) menu.open = false;
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && menu.open) {
+        menu.open = false;
+        menu.querySelector('summary')?.focus();
+      }
+    });
+    matchMedia('(min-width: 64rem)').addEventListener('change', (e) => {
+      if (e.matches) menu.open = false;
+    });
+  }
+</script>
+
+<script>
+  // Theme controls anywhere on the page (header toggle, menu, footer). Footer.astro ships the
+  // same script so either works alone; the flag makes sure only one copy binds.
+  const w = window as typeof window & { __swTheme?: boolean };
+  if (!w.__swTheme) {
+    w.__swTheme = true;
+    const root = document.documentElement;
+    const system = () => (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    const sync = () => {
+      const saved = localStorage.getItem('theme') ?? 'auto';
+      const theme = root.dataset.theme ?? 'dark';
+      document.querySelectorAll<HTMLElement>('[data-theme-choice]').forEach((b) => {
+        const withAuto = b.closest('[data-theme-group]')?.querySelector('[data-theme-choice="auto"]');
+        b.setAttribute('aria-pressed', String(b.dataset.themeChoice === (withAuto ? saved : theme)));
+      });
+      document.querySelectorAll('[data-theme-toggle]').forEach((b) => {
+        b.setAttribute('aria-label', theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme');
+      });
+      const bg = getComputedStyle(root).getPropertyValue('--c-bg').trim();
+      if (bg) document.querySelector('meta[name="theme-color"]')?.setAttribute('content', bg);
+    };
+    const apply = (choice: string) => {
+      if (choice === 'auto') localStorage.removeItem('theme');
+      else localStorage.setItem('theme', choice);
+      root.dataset.theme = choice === 'auto' ? system() : choice;
+      sync();
+    };
+    document.addEventListener('click', (e) => {
+      const el = (e.target as Element).closest<HTMLElement>('[data-theme-choice],[data-theme-toggle]');
+      if (el) apply(el.dataset.themeChoice ?? (root.dataset.theme === 'dark' ? 'light' : 'dark'));
+    });
+    matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
+      if (!localStorage.getItem('theme')) apply('auto');
+    });
+    sync();
+  }
+</script>

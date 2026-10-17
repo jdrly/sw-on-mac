@@ -1,0 +1,55 @@
+---
+// SWGL only: the Rosetta advisory, with the per-macOS PLAY/HOLD track from swglMacosSupport.
+import Icon from './Icon.astro';
+import { swglMacosSupport } from '../../data/apps';
+
+const hold = swglMacosSupport.find((s) => s.status === 'hold')?.macos;
+const play = swglMacosSupport.filter((s) => s.status === 'play').map((s) => s.macos.replace(/^macOS\s*/, ''));
+// "26 and 27", "25, 26 and 27"
+const playList = play.length > 1 ? `${play.slice(0, -1).join(', ')} and ${play.at(-1)}` : (play[0] ?? '');
+const playOr = play.length > 1 ? `${play.slice(0, -1).join(', ')} or ${play.at(-1)}` : (play[0] ?? '');
+---
+
+{
+  hold && (
+    <section aria-labelledby="swgl-advisory" class="border-l-2 border-warning bg-warning-soft px-5 pt-5 pb-[22px] sm:px-6 sm:pt-6 sm:pb-[26px]">
+      <div class="flex items-center justify-between gap-4 text-warning">
+        <p class="flex items-center gap-2.5 font-mono text-[11px] font-bold tracking-[0.2em] uppercase">
+          <Icon name="triangle-alert" class="size-4" />
+          Advisory — Rosetta
+        </p>
+        <p class="font-mono text-[10px] tracking-[0.2em] uppercase" aria-hidden="true">
+          Priority 1
+        </p>
+      </div>
+
+      <h3
+        id="swgl-advisory"
+        class="mt-3.5 font-display text-[23px] leading-[1.25] font-semibold tracking-[-0.02em] text-balance text-fg sm:text-[28px]"
+      >
+        Don't upgrade a Mac you play on to {hold} yet
+      </h3>
+      <p class="mt-3.5 text-sm leading-[1.55] text-fg-2">
+        Works on macOS {playList}, and installs Rosetta for you if it's missing. Apple is winding Rosetta down
+        after macOS {play.at(-1)}, so stay on {playOr} until a release here says {hold} works.
+      </p>
+
+      <ul class="mt-3.5 grid grid-cols-3 gap-3.5 pt-2" aria-label="SWGL on Mac by macOS version">
+        {
+          swglMacosSupport.map((s) => (
+            <li class="flex flex-col gap-2">
+              <span class:list={['h-1', s.status === 'play' ? 'bg-accent' : 'bg-warning']} aria-hidden="true" />
+              <span class="flex flex-col gap-1 font-mono text-[10px] leading-none tracking-[0.16em] uppercase sm:flex-row sm:justify-between">
+                <span class="text-fg-2">{s.macos}</span>
+                <span class:list={['font-bold', s.status === 'play' ? 'text-accent' : 'text-warning']}>
+                  <span class="sr-only">: </span>
+                  {s.status}
+                </span>
+              </span>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+  )
+}

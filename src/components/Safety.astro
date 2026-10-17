@@ -1,5 +1,262 @@
 ---
+import Starfield from './Starfield.astro';
+import HoloScope from './safety/HoloScope.astro';
+import Icon from './safety/Icon.astro';
+import { links } from '../data/site';
 
+interface Fact {
+  id: string;
+  code: string;
+  title: string;
+  text: string;
+  gauges?: { key: string; value: string }[];
+  repos?: boolean;
+  restore?: boolean;
+  /** SWGL gets an "N/A" chip when a fact is SWTOR-only */
+  swtorOnly?: boolean;
+  summary: string;
+}
+
+const facts: Fact[] = [
+  {
+    id: 'fact-01',
+    code: 'SYS.INTEGRITY',
+    title: 'Not a game mod',
+    text: 'Neither app edits the game. They change how your Mac runs and draws it (Direct3D 9 goes to Metal through d9mt) and leave the game client as it ships.',
+    gauges: [
+      { key: 'GAME FILES', value: 'UNCHANGED' },
+      { key: 'MEMORY', value: 'UNTOUCHED' },
+      { key: 'NETWORK', value: 'UNTOUCHED' },
+    ],
+    summary: 'UNCHANGED',
+  },
+  {
+    id: 'fact-02',
+    code: 'CODE.SIGNATURE',
+    title: 'Signed & notarized',
+    text: 'Every release is signed with a Developer ID and notarized by Apple, so macOS can check where it came from before it opens.',
+    gauges: [
+      { key: 'DEVELOPER ID', value: 'SIGNED' },
+      { key: 'APPLE', value: 'NOTARIZED' },
+    ],
+    summary: 'SIGNED',
+  },
+  {
+    id: 'fact-03',
+    code: 'SOURCE.ACCESS',
+    title: 'Open source',
+    text: 'The code is public on GitHub under the zlib licence; the parts the apps bundle, like d9mt and Wine, keep their own licences. Read it, build it yourself or fork it.',
+    repos: true,
+    summary: 'PUBLIC',
+  },
+  {
+    id: 'fact-04',
+    code: 'ROLLBACK',
+    title: 'Fully reversible',
+    text: 'Uninstall in SWTOR on Mac puts the official SWTOR app back exactly as Broadsword ships it and copies your game settings back. SWGL on Mac has nothing to undo: it keeps the game and everything else in its own folder.',
+    restore: true,
+    swtorOnly: true,
+    summary: 'REVERSIBLE',
+  },
+];
+
+const repos = [
+  { href: links.swtorRepo, label: 'github.com/jdrly/swtor-on-mac', app: 'app-swtor' },
+  { href: links.swglRepo, label: 'github.com/jdrly/swgl-on-mac', app: 'app-swgl' },
+];
+
+const readout = [
+  { key: 'FACTS', value: '4', dot: true },
+  { key: 'GAME FILES', value: 'UNCHANGED' },
+  { key: 'LICENCE', value: 'ZLIB' },
+];
+
+const ruler = ['03.0000', '·', '·', '·', '03.0500', '·', '·', '·', '03.1000', '·', '·', '·', '03.1500'];
+
+const cols = 'xl:grid-cols-[64px_minmax(0,280px)_minmax(0,1fr)_130px_130px]';
+const chip =
+  'inline-flex items-center gap-1.5 border px-2 py-[5px] font-mono text-[10px] leading-[13px] tracking-[0.15em] xl:gap-2 xl:px-2.5 xl:tracking-[0.2em]';
 ---
 
-<section id="safety" class="p-8 border-b border-line font-mono text-fg-3">Safety (stub)</section>
+<section id="safety" class="relative overflow-hidden bg-bg" aria-labelledby="safety-title">
+  <Starfield seed={2} />
+
+  <!-- Coordinate ruler (decorative) -->
+  <div class="relative hidden h-9 items-end justify-between border-t border-line px-20 md:flex" aria-hidden="true">
+    {
+      ruler.map((t) =>
+        t === '·' ? (
+          <span class="flex flex-col items-center gap-1.5">
+            <span class="font-mono text-[10px] leading-none text-line-strong">·</span>
+            <span class="h-[5px] w-px bg-line" />
+          </span>
+        ) : (
+          <span class="flex flex-col gap-1.5">
+            <span class="font-mono text-[10px] leading-none tracking-[0.1em] text-fg-3">{t}</span>
+            <span class="h-2.5 w-px bg-line-strong" />
+          </span>
+        ),
+      )
+    }
+  </div>
+
+  <div class="relative mx-auto max-w-[1440px] px-5 pt-16 sm:px-10 lg:px-20 lg:pt-24">
+    <!-- Intro + holoscan -->
+    <div class="grid items-center gap-x-20 gap-y-10 xl:grid-cols-[minmax(0,1fr)_440px]">
+      <div class="flex flex-col gap-7">
+        <p
+          class="flex items-center gap-1.5 font-mono text-[11px] tracking-[0.15em] text-fg-2 sm:gap-3 sm:text-xs sm:tracking-[0.2em]"
+          aria-hidden="true"
+        >
+          <span class="h-0.5 w-3.5 bg-swtor sm:w-4"></span>
+          <span class="h-0.5 w-3.5 bg-swgl sm:w-4"></span>
+          <span class="ml-1 sm:ml-0">// SECTOR 03 — WHAT IT TOUCHES</span>
+        </p>
+        <h2
+          id="safety-title"
+          class="font-display text-[clamp(2.5rem,11.8vw,5.5rem)] leading-[0.95] font-extrabold tracking-[-0.035em] text-fg xl:text-[clamp(4rem,calc(13.6vw-5.8rem),6.5rem)] xl:font-bold"
+        >
+          Is it safe?
+        </h2>
+        <p class="max-w-[640px] text-base leading-[1.6] text-fg-2 sm:text-xl sm:leading-[1.5]">
+          Here's what the apps change and what they leave alone. Both run the official game clients unchanged; what they
+          change is the layer that runs and draws them on your Mac. They're unofficial fan projects, so you use them at
+          your own risk.
+        </p>
+        <dl class="grid w-full max-w-[440px] grid-cols-[auto_minmax(0,1fr)_auto] border border-line-strong bg-bg-raised">
+          {
+            readout.map((r, i) => (
+              <div class:list={['flex flex-col gap-1.5 px-3 py-3 sm:px-[22px] sm:py-3.5', i > 0 && 'border-l border-line-strong']}>
+                <dt class="font-mono text-[9px] tracking-[0.15em] text-fg-3 sm:text-[10px] sm:tracking-[0.25em]">{r.key}</dt>
+                <dd class="flex items-center gap-2.5 font-mono text-sm font-semibold tracking-[0.05em] text-fg sm:text-base sm:tracking-[0.12em]">
+                  {r.dot && <span class="size-2 rounded-full bg-fg" aria-hidden="true" />}
+                  {r.value}
+                </dd>
+              </div>
+            ))
+          }
+        </dl>
+      </div>
+      <div class="hidden justify-center xl:flex">
+        <HoloScope />
+      </div>
+    </div>
+
+    <!-- Fact sheet -->
+    <div class="mt-7 border border-line-strong bg-bg-raised xl:mt-14">
+      <div
+        class="flex flex-col gap-2.5 border-b border-line-strong bg-surface px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-3.5"
+        aria-hidden="true"
+      >
+        <p class="font-mono text-[10px] tracking-[0.15em] text-fg-2 sm:text-[11px] sm:tracking-[0.2em]">
+          FACT SHEET <span class="hidden sm:inline">// TARGETS: SWTOR ON MAC · SWGL ON MAC</span><span class="sm:hidden"
+            >// 2 APPS</span
+          >
+        </p>
+        <p class="flex items-center gap-2.5 sm:gap-3">
+          <span class="font-mono text-[10px] tracking-[0.15em] text-fg-3 sm:tracking-[0.2em]">COVERS</span>
+          <span class="h-1 flex-1 bg-linear-to-r from-swtor to-swgl sm:w-[220px] sm:flex-none"></span>
+          <span class="font-mono text-[11px] tracking-[0.15em] text-fg sm:tracking-[0.2em]">2 APPS</span>
+        </p>
+      </div>
+
+      <div class={`hidden gap-x-8 px-6 py-2.5 font-mono text-[10px] tracking-[0.2em] text-fg-3 xl:grid ${cols}`} aria-hidden="true">
+        <span>NO.</span><span>FACT</span><span>DETAILS</span><span>APPLIES TO</span><span class="text-right">SUMMARY</span>
+      </div>
+
+      <ol>
+        {
+          facts.map((f, i) => (
+            <li
+              id={f.id}
+              class={`grid grid-cols-[auto_minmax(0,1fr)] gap-x-3.5 gap-y-3.5 border-t border-line px-4 pt-5 pb-[22px] first:border-t-0 xl:gap-x-8 xl:px-6 xl:py-8 xl:first:border-t ${cols}`}
+            >
+              <span class="font-display text-2xl leading-none font-bold text-fg-3 xl:text-[28px] xl:font-light" aria-hidden="true">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <div class="flex flex-col gap-1 xl:gap-2.5">
+                <span class="font-mono text-[9px] tracking-[0.15em] text-fg-2 xl:text-[10px] xl:tracking-[0.2em]" aria-hidden="true">
+                  {f.code}
+                </span>
+                <h3 class="font-display text-[21px] leading-[1.15] font-semibold tracking-[-0.02em] text-fg xl:text-[26px]">{f.title}</h3>
+              </div>
+
+              <div class="col-span-2 flex flex-col gap-3.5 xl:col-span-1 xl:gap-5">
+                <p class="max-w-[62ch] text-[15px] leading-[1.6] text-fg-2 xl:text-base xl:leading-[1.55]">{f.text}</p>
+                {f.gauges && (
+                  <dl class="grid border-t border-line" style={`grid-template-columns: repeat(${f.gauges.length}, minmax(0, 1fr))`}>
+                    {f.gauges.map((g, gi) => (
+                      <div class:list={['flex flex-col gap-1 pt-2.5 xl:gap-1.5 xl:pt-3', gi > 0 && 'border-l border-line pl-2.5 xl:pl-4']}>
+                        <dt class="font-mono text-[9px] tracking-[0.12em] text-fg-3 xl:tracking-[0.2em]">{g.key}</dt>
+                        <dd class="font-mono text-[11px] font-semibold tracking-[0.05em] text-fg xl:text-xs xl:tracking-[0.15em]">{g.value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                )}
+                {f.repos && (
+                  <ul class="flex flex-col gap-2.5 xl:gap-3">
+                    {repos.map((r) => (
+                      <li class={r.app}>
+                        <a
+                          href={r.href}
+                          class="inline-flex items-center gap-1.5 border-b border-accent pb-1 font-mono text-xs tracking-[0.04em] break-all text-fg transition-colors hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                        >
+                          {r.label}
+                          <Icon name="arrow-up-right" class="size-3.5 shrink-0 text-accent" />
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {f.restore && (
+                  <p
+                    class="flex items-center gap-2 font-mono text-[10px] tracking-[0.15em] text-fg xl:gap-3.5 xl:text-[11px] xl:tracking-[0.2em]"
+                    aria-hidden="true"
+                  >
+                    <span class="whitespace-nowrap">UNINSTALL</span>
+                    <span class="h-px w-10 bg-linear-to-r from-line-strong to-swtor min-[1440px]:w-[72px]" />
+                    <Icon name="rotate-ccw" class="size-3.5 text-swtor" />
+                    <span class="h-px w-10 bg-linear-to-r from-swtor to-line-strong min-[1440px]:w-[72px]" />
+                    <span class="whitespace-nowrap">AS SHIPPED</span>
+                  </p>
+                )}
+              </div>
+
+              <div class="col-span-2 flex items-center justify-between gap-3 pt-1 xl:contents">
+                <ul class="flex flex-wrap gap-1.5 xl:flex-col xl:items-start xl:gap-2" aria-label="Applies to">
+                  <li class={`${chip} border-swtor bg-swtor-soft text-fg`}>
+                    <span class="size-1.5 bg-swtor" aria-hidden="true" />
+                    SWTOR
+                  </li>
+                  {f.swtorOnly ? (
+                    <li class={`${chip} border-line text-fg-3`}>
+                      <span class="size-1.5 bg-line-strong" aria-hidden="true" />
+                      <span aria-hidden="true">SWGL — N/A</span>
+                      <span class="sr-only">SWGL: not applicable</span>
+                    </li>
+                  ) : (
+                    <li class={`${chip} border-swgl bg-swgl-soft text-fg`}>
+                      <span class="size-1.5 bg-swgl" aria-hidden="true" />
+                      SWGL
+                    </li>
+                  )}
+                </ul>
+                <div class="flex flex-col items-end gap-2.5 xl:self-start" aria-hidden="true">
+                  <span class="flex items-center gap-2 font-mono text-xs font-semibold tracking-[0.15em] text-fg xl:text-[13px] xl:font-bold xl:tracking-[0.25em]">
+                    <span class="size-2 bg-fg" />
+                    {f.summary}
+                  </span>
+                  <span class="hidden gap-[3px] xl:flex">
+                    {Array.from({ length: 6 }, () => (
+                      <span class="h-[3px] w-3.5 bg-fg-2" />
+                    ))}
+                  </span>
+                </div>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </div>
+</section>

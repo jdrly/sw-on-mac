@@ -1,5 +1,183 @@
 ---
+import Wordmark from './Wordmark.astro';
+import { apps } from '../data/apps';
+import { disclaimer, links, site } from '../data/site';
 
+const columns = [
+  {
+    title: 'Apps',
+    links: [
+      { href: '#swtor', label: apps.swtor.name },
+      { href: '#swgl', label: apps.swgl.name },
+      { href: '#releases', label: 'Release log' },
+    ],
+  },
+  {
+    title: 'Source',
+    links: [
+      { href: links.swtorRepo, label: apps.swtor.repo, short: apps.swtor.repo.split('/')[1] },
+      { href: links.swglRepo, label: apps.swgl.repo, short: apps.swgl.repo.split('/')[1] },
+      { href: links.d9mt, label: 'd9mt' },
+      { href: links.license, label: 'Licence (zlib)' },
+    ],
+  },
+  {
+    title: 'Comms',
+    links: [
+      { href: links.discord, label: 'Discord' },
+      { href: links.swtorIssues, label: 'SWTOR issues' },
+      { href: links.swglIssues, label: 'SWGL issues' },
+    ],
+  },
+];
+
+const year = new Date().getFullYear();
+const focus = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg';
 ---
 
-<footer class="p-8 border-b border-line font-mono text-fg-3">Footer (stub)</footer>
+<footer>
+  <div class="mx-auto flex max-w-[1440px] flex-col gap-10 px-5 pt-14 pb-8 sm:px-12 lg:gap-18 lg:px-24 lg:pt-24 lg:pb-10">
+    <div class="flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between lg:gap-16">
+      <div class="flex flex-col gap-4 lg:gap-6">
+        <a href="#top" class:list={['self-start', focus]}>
+          <Wordmark
+            onClass="text-fg-3"
+            class="[--wm-gap:0.06em] text-[clamp(2.75rem,12.8vw,5rem)] leading-[0.9] tracking-[-0.03em] lg:text-[clamp(5rem,7.2vw,6.5rem)] lg:tracking-[-0.04em]"
+          />
+        </a>
+        <p class="flex items-center gap-2.5 font-mono text-[10px] tracking-[0.15em] text-fg-2 lg:gap-4 lg:text-xs lg:tracking-[0.17em]">
+          <span class="h-[3px] w-5 bg-swtor lg:w-7" aria-hidden="true"></span>
+          <span class="h-[3px] w-5 bg-swgl lg:w-7" aria-hidden="true"></span>
+          <span>FREE · OPEN SOURCE · <span class="hidden sm:inline">MADE BY </span>{site.author.toUpperCase()}</span>
+        </p>
+      </div>
+
+      <nav aria-label="Footer" class="grid grid-cols-3 gap-4 sm:flex sm:gap-12">
+        {
+          columns.map((col) => (
+            <div class="flex min-w-0 flex-col gap-3.5 lg:gap-4">
+              <h2 class="font-mono text-[10px] tracking-[0.15em] text-fg-3 uppercase lg:text-[11px] lg:tracking-[0.18em]">{col.title}</h2>
+              <ul class="flex flex-col gap-3.5 lg:gap-4">
+                {col.links.map((l) => (
+                  <li>
+                    <a
+                      href={l.href}
+                      class:list={[
+                        'text-sm leading-[17px] break-words text-fg underline-offset-4 transition-colors hover:text-fg-2 hover:underline lg:text-[15px] lg:leading-[18px]',
+                        focus,
+                      ]}
+                    >
+                      {'short' in l && l.short ? (
+                        <Fragment>
+                          <span class="sm:hidden">{l.short}</span>
+                          <span class="hidden sm:inline">{l.label}</span>
+                        </Fragment>
+                      ) : (
+                        l.label
+                      )}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        }
+      </nav>
+    </div>
+
+    <div class="flex flex-col gap-3 border-t border-line pt-6 lg:flex-row lg:gap-16 lg:pt-8">
+      <p class="shrink-0 font-mono text-[10px] tracking-[0.15em] text-fg-3 lg:w-28 lg:text-[11px] lg:tracking-[0.18em]" aria-hidden="true">
+        // DISCLAIMER
+      </p>
+      <p class="max-w-[1072px] text-[13px] leading-[1.6] text-fg-2 lg:text-sm lg:leading-[1.65]">{disclaimer}</p>
+    </div>
+
+    <div class="flex flex-col gap-4 border-t border-line pt-5 lg:flex-row lg:items-center lg:justify-between lg:pt-6">
+      <div class="flex items-center justify-between gap-4 lg:contents">
+        <a
+          href={links.d9mt}
+          class:list={[
+            'inline-flex items-center gap-2 border border-line-strong px-2.5 py-2 font-mono text-[10px] leading-[13px] tracking-[0.15em] text-fg-2 transition-colors hover:border-fg hover:text-fg lg:gap-2.5 lg:px-3 lg:text-[11px] lg:leading-[15px] lg:tracking-[0.18em]',
+            focus,
+          ]}
+        >
+          <svg class="size-[13px] lg:size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect width="16" height="16" x="4" y="4" rx="2" /><rect width="6" height="6" x="9" y="9" rx="1" />
+            <path d="M15 2v2M15 20v2M2 15h2M2 9h2M20 15h2M20 9h2M9 2v2M9 20v2" />
+          </svg>
+          BUILT WITH D9MT<span class="hidden lg:inline">{' · D3D9 → METAL'}</span>
+        </a>
+
+        <p class="hidden font-mono text-[11px] tracking-[0.18em] text-fg-3 lg:block">
+          © {year} {site.author.toUpperCase()} &nbsp;·&nbsp; <span aria-hidden="true">END OF TRANSMISSION</span>
+        </p>
+
+        <div class="flex gap-[3px] border border-line-strong p-[3px]" role="group" aria-label="Colour theme">
+          {
+            (['dark', 'light'] as const).map((choice) => (
+              <button
+                type="button"
+                data-theme-choice={choice}
+                aria-pressed="false"
+                aria-label={`${choice === 'dark' ? 'Dark' : 'Light'} theme`}
+                class:list={[
+                  'flex h-8 w-[38px] items-center justify-center gap-2 font-mono text-[11px] tracking-[0.18em] text-fg-3 uppercase transition-colors hover:text-fg aria-pressed:bg-fg aria-pressed:text-bg lg:h-[29px] lg:w-auto lg:px-3',
+                  focus,
+                ]}
+              >
+                <svg class="size-3.5 lg:size-[13px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  {choice === 'dark' && <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />}
+                  {choice === 'light' && <circle cx="12" cy="12" r="4" />}
+                  {choice === 'light' && <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />}
+                </svg>
+                <span class="hidden lg:inline" aria-hidden="true">{choice}</span>
+              </button>
+            ))
+          }
+        </div>
+      </div>
+
+      <p class="font-mono text-[10px] tracking-[0.15em] text-fg-3 lg:hidden">
+        © {year} {site.author.toUpperCase()} · <span aria-hidden="true">END OF TRANSMISSION</span>
+      </p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Theme controls anywhere on the page (footer, header toggle, menu). Header.astro ships the
+  // same script so either works alone; the flag makes sure only one copy binds.
+  const w = window as typeof window & { __swTheme?: boolean };
+  if (!w.__swTheme) {
+    w.__swTheme = true;
+    const root = document.documentElement;
+    const system = () => (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    const sync = () => {
+      const saved = localStorage.getItem('theme') ?? 'auto';
+      const theme = root.dataset.theme ?? 'dark';
+      document.querySelectorAll<HTMLElement>('[data-theme-choice]').forEach((b) => {
+        const withAuto = b.closest('[data-theme-group]')?.querySelector('[data-theme-choice="auto"]');
+        b.setAttribute('aria-pressed', String(b.dataset.themeChoice === (withAuto ? saved : theme)));
+      });
+      document.querySelectorAll('[data-theme-toggle]').forEach((b) => {
+        b.setAttribute('aria-label', theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme');
+      });
+      const bg = getComputedStyle(root).getPropertyValue('--c-bg').trim();
+      if (bg) document.querySelector('meta[name="theme-color"]')?.setAttribute('content', bg);
+    };
+    const apply = (choice: string) => {
+      if (choice === 'auto') localStorage.removeItem('theme');
+      else localStorage.setItem('theme', choice);
+      root.dataset.theme = choice === 'auto' ? system() : choice;
+      sync();
+    };
+    document.addEventListener('click', (e) => {
+      const el = (e.target as Element).closest<HTMLElement>('[data-theme-choice],[data-theme-toggle]');
+      if (el) apply(el.dataset.themeChoice ?? (root.dataset.theme === 'dark' ? 'light' : 'dark'));
+    });
+    matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
+      if (!localStorage.getItem('theme')) apply('auto');
+    });
+    sync();
+  }
+</script>

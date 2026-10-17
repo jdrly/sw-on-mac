@@ -19,7 +19,7 @@ export default defineConfig({
       name: 'Inter',
       cssVariable: '--font-inter',
       weights: ['100 900'],
-      styles: ['normal'],
+      styles: ['normal', 'italic'],
       subsets: ['latin'],
       fallbacks: ['sans-serif'],
     },

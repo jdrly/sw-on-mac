@@ -1,0 +1,31 @@
+---
+// The "SW on MAC" wordmark: SW and MAC heavy, "on" hairline, so it never reads as "swon mac".
+// Size it with a font-size class; everything else scales in em. Tighten the word gap with
+// [--wm-gap:0.06em] for display sizes.
+interface Props {
+  class?: string;
+  /** Colour of the hairline "on" */
+  onClass?: string;
+  /** The two app pips (SWTOR red, SWGL cyan) in front of the word */
+  mark?: boolean;
+}
+
+const { class: className = '', onClass = 'text-fg-2', mark = false } = Astro.props;
+---
+
+<span class:list={['inline-flex items-center font-display leading-none whitespace-nowrap', className]}>
+  <span class="sr-only">SW on Mac</span>
+  {
+    mark && (
+      <span class="mr-[0.7em] flex flex-col gap-[0.15em]" aria-hidden="true">
+        <span class="block size-[0.35em] bg-swtor" />
+        <span class="block size-[0.35em] bg-swgl" />
+      </span>
+    )
+  }
+  <span class="inline-flex items-baseline gap-[var(--wm-gap,0.25em)]" aria-hidden="true">
+    <span class="font-extrabold">SW</span>
+    <span class:list={['font-extralight', onClass]}>on</span>
+    <span class="font-extrabold">MAC</span>
+  </span>
+</span>

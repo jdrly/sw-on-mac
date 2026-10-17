@@ -1,0 +1,104 @@
+---
+// One release on the timeline. The newest release of each app is open; older ones are a
+// native <details> that shows the one-line summary until opened.
+import { apps } from '../../data/apps';
+import { formatDate, type Release } from '../../lib/releases';
+import ReleaseNotes from './ReleaseNotes.astro';
+
+interface Props {
+  release: Release;
+  isLatest: boolean;
+}
+
+const { release, isLatest } = Astro.props;
+const app = apps[release.app];
+const date = formatDate(release.publishedAt);
+const datetime = release.publishedAt.toISOString();
+---
+
+<li
+  id={release.id}
+  data-app={release.app}
+  class:list={[
+    `app-${release.app}`,
+    'flex gap-3.5 sm:gap-7',
+    // The filter: the section's data-filter hides the other app's entries.
+    release.app === 'swtor' ? 'group-data-[filter=swgl]/rel:hidden' : 'group-data-[filter=swtor]/rel:hidden',
+  ]}
+>
+  <div
+    aria-hidden="true"
+    class:list={['flex w-3 shrink-0 flex-col items-center sm:w-4', isLatest ? 'pt-2 sm:pt-2.5' : 'pt-5 sm:pt-6']}
+  >
+    {
+      isLatest ? (
+        <span class="size-2.5 bg-accent sm:size-3" />
+      ) : (
+        <span class="size-[9px] border-[1.5px] border-accent bg-bg" />
+      )
+    }
+    <span class="w-px flex-1 bg-line-strong"></span>
+  </div>
+
+  {
+    isLatest ? (
+      <article class="flex min-w-0 flex-1 flex-col gap-3.5 pb-10 sm:gap-5 sm:pb-14">
+        <header class="flex flex-wrap items-center gap-x-3 gap-y-1 sm:gap-x-5">
+          <span class="border border-accent bg-accent-soft px-2 py-1 font-mono text-[10px] font-bold tracking-[2px] text-accent sm:px-2.5 sm:py-1.5 sm:text-[11px]">
+            {app.short}
+          </span>
+          <span class="font-display text-[26px] leading-none font-bold tracking-[-1px] text-fg sm:text-[34px]">
+            {release.version}
+          </span>
+          <time
+            datetime={datetime}
+            class="order-last basis-full pt-2 font-mono text-[11px] tracking-[1.5px] text-fg-3 uppercase sm:order-none sm:basis-auto sm:pt-0 sm:text-xs sm:tracking-[2px]"
+          >
+            {date}
+          </time>
+          <span class="ml-auto flex items-center gap-2 font-mono text-[10px] tracking-[2px] text-fg-2 uppercase sm:text-[11px]">
+            <span class="size-1.5 rounded-full bg-accent motion-safe:animate-pulse" aria-hidden="true" />
+            Latest<span class="max-sm:sr-only">&nbsp;{app.short}</span>
+          </span>
+        </header>
+        <ReleaseNotes release={release} />
+      </article>
+    ) : (
+      <article class="min-w-0 flex-1 pb-3 sm:pb-4">
+        <details class="group/d">
+          <summary class="flex cursor-pointer list-none items-center gap-3 border border-line px-3.5 py-3.5 transition-colors select-none hover:border-line-strong hover:bg-bg-raised focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent group-open/d:border-line-strong sm:gap-5 sm:px-6 sm:py-[18px] [&::-webkit-details-marker]:hidden">
+            <span class="flex min-w-0 flex-1 flex-col gap-2 md:flex-row md:items-center md:gap-5 lg:flex-col lg:items-start lg:gap-2 xl:flex-row xl:items-center xl:gap-5">
+              <span class="flex shrink-0 items-center gap-2.5 md:gap-5">
+                <span class="border border-accent px-[7px] py-1 font-mono text-[10px] font-bold tracking-[2px] text-accent sm:px-[9px] sm:py-[5px]">
+                  {app.short}
+                </span>
+                <span class="font-display text-[17px] font-semibold text-fg sm:text-xl">{release.version}</span>
+                <time datetime={datetime} class="font-mono text-[10px] tracking-[1.5px] text-fg-3 uppercase sm:text-[11px] sm:tracking-[2px]">
+                  {date}
+                </time>
+              </span>
+              {release.summary && (
+                <span class="text-sm leading-normal text-fg-2 group-open/d:sr-only sm:text-[15px]">{release.summary}</span>
+              )}
+            </span>
+            <svg
+              aria-hidden="true"
+              class="size-[18px] shrink-0 text-fg-3 transition-transform group-open/d:rotate-45 group-hover/d:text-fg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M5 12h14M12 5v14" />
+            </svg>
+          </summary>
+          <div class="mt-3">
+            <ReleaseNotes release={release} />
+          </div>
+        </details>
+      </article>
+    )
+  }
+</li>

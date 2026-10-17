@@ -1,8 +1,290 @@
 ---
+// #swtor / #swgl: one layout, the app's accent from .app-<id>. SWTOR adds the FPS telemetry,
+// SWGL the Rosetta advisory.
+import { Picture } from 'astro:assets';
 import type { App } from '../data/apps';
-import type { Release } from '../lib/releases';
-interface Props { app: App; release: Release | undefined }
-const { app } = Astro.props;
+import { formatDate, type Release } from '../lib/releases';
+import { links } from '../data/site';
+import Starfield from './Starfield.astro';
+import Icon, { type IconName } from './app/Icon.astro';
+import Streaks from './app/Streaks.astro';
+import Telemetry from './app/Telemetry.astro';
+import Advisory from './app/Advisory.astro';
+
+interface Props {
+  app: App;
+  release: Release | undefined;
+}
+
+const { app, release } = Astro.props;
+const repoUrl = `https://github.com/${app.repo}`;
+
+// Decorative HUD text and section spacing, per app (from the design)
+const hud = {
+  swtor: { sector: '02', index: '01/02', coords: 'RA 02H 14M 09S · DEC +41° 07′', fig: '01', seed: 2 },
+  swgl: { sector: '03', index: '02/02', coords: 'RA 05H 35M 17S · DEC −05° 23′', fig: '02', seed: 3 },
+}[app.id];
+const spacing = { swtor: 'pt-14 pb-16 lg:pt-22 lg:pb-24', swgl: 'pt-14 pb-16 lg:pt-10 lg:pb-30' }[app.id];
+
+const featureIcons: Record<string, IconName> = {
+  'Direct3D 9 → Metal': 'zap',
+  'macOS Game Mode': 'gamepad-2',
+  'Retina rendering': 'scan',
+  'Updates itself': 'refresh-cw',
+  'Collect Logs': 'file-text',
+  'Fully reversible': 'undo-2',
+  'Official launcher': 'rocket',
+};
+
+const pad2 = (n: number) => String(n).padStart(2, '0');
+
+const shot = {
+  formats: ['avif', 'webp'] as ('avif' | 'webp')[],
+  widths: [480, 720, 1080, 1440],
+  sizes: '(min-width: 1440px) 712px, (min-width: 1024px) 52vw, calc(100vw - 4rem)',
+  loading: 'lazy' as const,
+  alt: app.screenshot.alt,
+};
+
+const label = 'font-mono text-[11px] font-semibold tracking-[0.2em] text-fg-2 uppercase';
+const focus = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent';
 ---
 
-<section id={app.id} class="p-8 border-b border-line font-mono text-fg-3">AppSection {app.id} (stub)</section>
+<section
+  id={app.id}
+  aria-labelledby={`${app.id}-title`}
+  class:list={[`app-${app.id}`, 'relative isolate overflow-hidden bg-bg px-5 sm:px-8 lg:px-12 xl:px-20', spacing]}
+>
+  <!-- Backdrop: column grid lines and stars -->
+  <div class="pointer-events-none absolute inset-0 -z-10 px-5 sm:px-8 lg:px-12 xl:px-20" aria-hidden="true">
+    <div class="mx-auto grid h-full max-w-[1280px] lg:grid-cols-[760fr_472fr] lg:gap-x-12">
+      <div class="border-x border-line/70"></div>
+      <div class="hidden border-x border-line/70 lg:block"></div>
+    </div>
+  </div>
+  <Starfield class="-z-10" seed={hud.seed} density={4} />
+
+  <div class="mx-auto flex max-w-[1280px] flex-col gap-9 lg:gap-14">
+    <!-- HUD bar -->
+    <div
+      class="relative grid grid-cols-[1fr_auto] gap-x-4 gap-y-2 border-b border-line-strong pb-3.5 font-mono text-[10px] tracking-[0.16em] text-fg-3 uppercase lg:pb-4 lg:text-[11px] lg:tracking-[0.2em] xl:flex xl:items-center xl:justify-between"
+    >
+      <p class="text-[11px] font-semibold tracking-[0.2em] whitespace-nowrap text-accent" aria-hidden="true">
+        // Sector {hud.sector} — {app.short}
+      </p>
+      <p class="self-center text-right xl:hidden" aria-hidden="true">App {hud.index}</p>
+      <p class="col-span-2 leading-[1.6] lg:leading-normal">{app.kicker}</p>
+      <p class="col-span-2" aria-hidden="true">
+        {hud.coords}<span class="hidden xl:inline"> · App {hud.index}</span>
+      </p>
+      <Streaks set="hud" />
+    </div>
+
+    <!-- Title row -->
+    <div class="relative grid gap-6 lg:grid-cols-[760fr_472fr] lg:gap-x-12">
+      <h2 id={`${app.id}-title`} class="flex flex-col gap-1.5 font-display uppercase lg:gap-1">
+        <span class="text-[clamp(4.5rem,10.4vw,9.375rem)] leading-none font-extrabold tracking-[-0.04em] text-fg">
+          {app.short}
+        </span>
+        <span class="flex items-center gap-3 pl-1.5 text-[clamp(1.375rem,2.8vw,2.5rem)] font-light tracking-[0.35em] text-accent lg:gap-5 lg:pl-2">
+          <span class="h-0.5 w-9 bg-accent lg:h-[3px] lg:w-16" aria-hidden="true"></span>
+          <span><span class="sr-only"> </span>on Mac</span>
+        </span>
+      </h2>
+
+      <div class="flex flex-col gap-6 lg:gap-7 lg:self-end lg:pb-3">
+        <p class="text-[17px] leading-normal text-pretty text-fg-2 lg:text-[19px]">{app.description}</p>
+        <div class="flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:gap-3">
+          {
+            release ? (
+              <a
+                href={release.dmgUrl}
+                class:list={[
+                  'inline-flex h-[52px] items-center justify-center gap-3 rounded-[2px] bg-accent px-5 font-mono text-xs font-bold tracking-[0.1em] text-on-accent uppercase transition hover:brightness-110 sm:h-12 sm:px-[22px]',
+                  focus,
+                ]}
+              >
+                <Icon name="arrow-down-to-line" />
+                <span>
+                  Download <span class="sr-only">{app.name} </span>
+                  {release.version} · {formatDate(release.publishedAt)}
+                </span>
+              </a>
+            ) : (
+              <span
+                class="inline-flex h-[52px] cursor-not-allowed items-center justify-center gap-3 rounded-[2px] border border-dashed border-line-strong px-5 font-mono text-xs font-bold tracking-[0.1em] text-fg-3 uppercase sm:h-12 sm:px-[22px]"
+                aria-disabled="true"
+              >
+                <Icon name="arrow-down-to-line" />
+                <span>
+                  <span class="sr-only">{app.name}: </span>Coming soon
+                </span>
+              </span>
+            )
+          }
+          <a
+            href={repoUrl}
+            class:list={[
+              'group inline-flex h-12 items-center justify-center gap-2 rounded-[2px] border border-line-strong px-[18px] font-mono text-xs font-semibold tracking-[0.1em] text-fg uppercase transition hover:border-fg-3 hover:bg-surface',
+              focus,
+            ]}
+          >
+            Source<span class="sr-only"> code of {app.name} on GitHub</span>
+            <Icon name="arrow-up-right" class="size-3.5 text-fg-2 transition group-hover:text-accent" />
+          </a>
+        </div>
+      </div>
+      <Streaks set="title" />
+    </div>
+
+    <!-- Screenshot, side column, features, install -->
+    <div class="grid gap-9 lg:grid-cols-[760fr_472fr] lg:gap-x-12 lg:gap-y-14">
+      <figure class="grid grid-cols-[1fr_auto] content-start gap-x-4 gap-y-2.5 lg:gap-y-3">
+        <p class="font-mono text-[10px] tracking-[0.18em] whitespace-nowrap text-fg-2 uppercase lg:text-[11px] lg:tracking-[0.2em]" aria-hidden="true">
+          Fig. {hud.fig} — App window
+        </p>
+        <figcaption
+          class="col-span-2 row-start-3 font-mono text-[10px] tracking-[0.16em] text-fg-3 uppercase lg:col-span-1 lg:col-start-2 lg:row-start-1 lg:text-right lg:text-[11px] lg:tracking-[0.2em]"
+        >
+          {app.screenshot.caption}
+        </figcaption>
+
+        <div class="relative col-span-2 border border-line bg-bg-raised p-3 lg:p-6">
+          <div class="ticks-x absolute inset-x-0 top-0 h-[5px]" aria-hidden="true"></div>
+          <div class="ticks-x ticks-major absolute inset-x-0 top-0 h-2.5" aria-hidden="true"></div>
+          <div class="ticks-y absolute inset-y-0 left-0 w-[5px]" aria-hidden="true"></div>
+          <div class="ticks-y ticks-major absolute inset-y-0 left-0 w-2.5" aria-hidden="true"></div>
+
+          <Picture src={app.screenshot.dark} {...shot} class="block h-auto w-full light:hidden" />
+          <Picture src={app.screenshot.light} {...shot} class="hidden h-auto w-full light:block" />
+
+          {
+            ['top-[7px] left-[7px]', 'top-[7px] right-[7px] rotate-90', 'right-[7px] bottom-[7px] rotate-180', 'bottom-[7px] left-[7px] -rotate-90'].map(
+              (pos) => (
+                <svg class:list={['absolute size-4 text-accent lg:m-[3px]', pos]} viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="M1 16v-15h15" stroke="currentColor" stroke-width="2" />
+                </svg>
+              ),
+            )
+          }
+        </div>
+      </figure>
+
+      <div class="flex flex-col gap-9 lg:gap-10 lg:pt-[25px]">
+        {app.id === 'swtor' && <Telemetry />}
+        {app.id === 'swgl' && <Advisory />}
+
+        <div>
+          <h3 class={label}><span aria-hidden="true">// </span>System requirements</h3>
+          <dl class="mt-3">
+            {
+              app.requirements.map((r) => (
+                <div class="flex items-center justify-between gap-4 border-b border-line py-3.5 lg:py-[13px]">
+                  <dt class="flex shrink-0 items-center gap-2.5 font-mono text-[11px] tracking-[0.2em] text-fg-3 uppercase">
+                    <span class="size-[5px] bg-accent" aria-hidden="true" />
+                    {r.label}
+                  </dt>
+                  <dd class="text-right text-sm font-medium text-fg lg:text-[15px]">{r.value}</dd>
+                </div>
+              ))
+            }
+          </dl>
+        </div>
+      </div>
+
+      <div>
+        <h3 class={label}>
+          <span aria-hidden="true">// </span>Capabilities — {pad2(app.features.length)} modules
+        </h3>
+        <ol class="mt-4 grid sm:mt-5 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-5 xl:grid-cols-3">
+          {
+            app.features.map((f, i) => (
+              <li class="grid grid-cols-[22px_1fr] gap-x-3.5 border-t border-line-strong py-4 sm:flex sm:flex-col sm:gap-3 sm:pt-5 sm:pb-2">
+                <div class="flex items-start justify-between sm:items-center" aria-hidden="true">
+                  <span class="font-mono text-[11px] leading-[1.9] font-semibold tracking-[0.18em] text-accent sm:leading-normal sm:tracking-[0.2em]">
+                    {pad2(i + 1)}
+                  </span>
+                  {featureIcons[f.title] && <Icon name={featureIcons[f.title]} class="hidden size-[18px] text-accent sm:block" />}
+                </div>
+                <div class="flex flex-col gap-1.5 sm:gap-3">
+                  <h4 class="text-base font-semibold text-fg sm:text-[17px]">{f.title}</h4>
+                  <p class="text-sm leading-[1.55] text-fg-2">{f.text}</p>
+                </div>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+
+      <div>
+        <h3 class={label}>
+          <span aria-hidden="true">// </span>Launch sequence — {app.steps.length} steps
+        </h3>
+        <ol class="mt-4 sm:mt-5">
+          {
+            app.steps.map((s, i) => (
+              <li class="flex gap-4 border-t border-line py-[18px] sm:gap-5">
+                <span
+                  class:list={[
+                    'w-[50px] shrink-0 font-display text-[26px] leading-none font-bold tracking-[-0.04em] sm:w-[52px] sm:text-[28px]',
+                    i === app.steps.length - 1 ? 'text-accent' : 'text-fg-3',
+                  ]}
+                  aria-hidden="true"
+                >
+                  {pad2(i + 1)}
+                </span>
+                <div class="flex flex-col gap-1">
+                  <h4 class="text-base font-semibold text-fg">{s.title}</h4>
+                  <p class="text-sm leading-normal text-fg-2">{s.text}</p>
+                </div>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </div>
+
+    <!-- Credit bar -->
+    <div
+      class="flex flex-col border-t border-line-strong font-mono text-[11px] tracking-[0.2em] uppercase lg:flex-row lg:items-center lg:justify-between lg:pt-4"
+    >
+      <a
+        href={links.d9mt}
+        class:list={['group flex items-center justify-between gap-3 border-b border-line py-3.5 text-fg-3 lg:border-0 lg:py-0', focus]}
+      >
+        <span class="flex flex-col gap-1.5 lg:flex-row lg:items-baseline lg:gap-2.5">
+          <span class="flex items-baseline gap-2.5">
+            Built with
+            <span class="text-xs font-bold tracking-normal text-accent normal-case group-hover:underline lg:text-[11px]">d9mt</span>
+            <span class="hidden text-accent lg:inline" aria-hidden="true">↗</span>
+          </span>
+          <span class="text-[10px] tracking-[0.16em] lg:text-[11px] lg:tracking-[0.2em]">
+            <span class="hidden lg:inline" aria-hidden="true">· </span>Direct3D 9 → Metal, open source
+          </span>
+        </span>
+        <Icon name="arrow-up-right" class="size-4 text-accent lg:hidden" />
+      </a>
+      <a href={repoUrl} class:list={['group flex items-center justify-between gap-3 py-[18px] text-fg-2 hover:text-fg lg:py-0', focus]}>
+        <span class="tracking-[0.14em] lg:tracking-[0.2em]">
+          github.com/{app.repo}<span class="hidden lg:inline" aria-hidden="true"> ↗</span>
+        </span>
+        <Icon name="arrow-up-right" class="size-4 text-fg-2 lg:hidden" />
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .ticks-x {
+    background: repeating-linear-gradient(90deg, var(--c-border-strong) 0 1px, transparent 1px 40px);
+  }
+  .ticks-y {
+    background: repeating-linear-gradient(180deg, var(--c-border-strong) 0 1px, transparent 1px 40px);
+  }
+  .ticks-x.ticks-major {
+    background: repeating-linear-gradient(90deg, var(--c-border-strong) 0 1px, transparent 1px 200px);
+  }
+  .ticks-y.ticks-major {
+    background: repeating-linear-gradient(180deg, var(--c-border-strong) 0 1px, transparent 1px 200px);
+  }
+</style>

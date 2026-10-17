@@ -1,0 +1,176 @@
+---
+// The notes card of one release: its title, the one-sentence summary as the lead, the
+// GitHub-rendered notes as prose, and the "### Support" part moved to a footer.
+import { links } from '../../data/site';
+import type { Release } from '../../lib/releases';
+
+interface Props {
+  release: Release;
+}
+
+const { release } = Astro.props;
+
+// The release title is the card's h3, so the notes' "###" changes become h4.
+let body = release.bodyHtml.replace(/<(\/?)h3\b/g, '<$1h4');
+
+// "### Support" + its paragraph become the card's footer, wherever they are in the notes.
+let support = '';
+const supportMatch = body.match(/<h4[^>]*>\s*Support\s*<\/h4>\s*(<p>[\s\S]*?<\/p>)?\s*/i);
+if (supportMatch && supportMatch.index !== undefined) {
+  support = supportMatch[1] ?? '';
+  body = (body.slice(0, supportMatch.index) + body.slice(supportMatch.index + supportMatch[0].length)).trim();
+}
+
+const issues = release.app === 'swtor' ? links.swtorIssues : links.swglIssues;
+---
+
+<div class="overflow-hidden border border-line bg-bg-raised">
+  <div class="h-0.5 bg-accent" aria-hidden="true"></div>
+  <div class="flex flex-col gap-3.5 px-[18px] pt-[22px] pb-6 sm:px-10 sm:pt-9 sm:pb-10 sm:gap-4">
+    <h3 class="text-lg font-bold tracking-[-0.4px] text-fg sm:text-2xl">{release.title}</h3>
+    {release.summary && <p class="text-[15px] leading-[1.7] text-fg sm:text-base">{release.summary}</p>}
+    {body && <div class="notes"><Fragment set:html={body} /></div>}
+    {
+      (support || supportMatch) && (
+        <footer class="notes mt-2 border-t border-line pt-5">
+          <h4 style="margin-top: 0">Support</h4>
+          <Fragment set:html={support} />
+          <p>
+            <a class="issues" href={issues}>
+              {issues.replace(/^https:\/\//, '')}
+              <span aria-hidden="true">↗</span>
+            </a>
+          </p>
+        </footer>
+      )
+    }
+  </div>
+</div>
+
+<style>
+  .notes {
+    color: var(--c-fg-2);
+    font-size: 15px;
+    line-height: 1.7;
+    overflow-wrap: break-word;
+  }
+  .notes > :global(* + *) {
+    margin-top: 1rem;
+  }
+  .notes :global(h2),
+  .notes :global(h4) {
+    margin-top: 1.75rem;
+    color: var(--c-fg);
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+  .notes > :global(h2:first-child),
+  .notes > :global(h4:first-child) {
+    margin-top: 0.5rem;
+  }
+  .notes :global(strong) {
+    color: var(--c-fg);
+    font-weight: 600;
+  }
+  .notes :global(em) {
+    color: var(--c-fg);
+  }
+  .notes :global(a) {
+    color: var(--c-accent);
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+    text-decoration-color: color-mix(in srgb, var(--c-accent) 45%, transparent);
+  }
+  .notes :global(a:hover) {
+    text-decoration-color: currentColor;
+  }
+  .notes :global(a:focus-visible) {
+    outline: 2px solid var(--c-accent);
+    outline-offset: 2px;
+  }
+  .notes a.issues {
+    text-decoration: none;
+  }
+  .notes a.issues:hover {
+    text-decoration: underline;
+  }
+  .notes :global(code) {
+    padding: 1px 6px;
+    border: 1px solid var(--c-border);
+    background: var(--c-surface);
+    color: var(--c-fg);
+    font-family: var(--font-jetbrains-mono), monospace;
+    font-size: 0.87em;
+    overflow-wrap: anywhere;
+  }
+  .notes :global(pre) {
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--c-border);
+    background: var(--c-surface);
+    overflow-x: auto;
+    line-height: 1.5;
+  }
+  .notes :global(pre code) {
+    padding: 0;
+    border: 0;
+    background: none;
+    overflow-wrap: normal;
+  }
+  .notes :global(ul),
+  .notes :global(ol) {
+    padding: 0;
+    list-style: none;
+  }
+  .notes :global(ol) {
+    counter-reset: note;
+  }
+  .notes :global(li) {
+    position: relative;
+    padding-left: 19px;
+  }
+  .notes :global(li + li) {
+    margin-top: 12px;
+  }
+  .notes :global(li > ul),
+  .notes :global(li > ol) {
+    margin-top: 8px;
+  }
+  .notes :global(ul > li::before) {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: 0;
+    width: 5px;
+    height: 5px;
+    background: var(--c-accent);
+  }
+  .notes :global(ol > li) {
+    counter-increment: note;
+    padding-left: 24px;
+  }
+  .notes :global(ol > li::before) {
+    content: counter(note, decimal-leading-zero);
+    position: absolute;
+    left: 0;
+    color: var(--c-accent);
+    font-family: var(--font-jetbrains-mono), monospace;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 25.5px;
+  }
+  .notes :global(blockquote) {
+    padding-left: 1rem;
+    border-left: 2px solid var(--c-border-strong);
+  }
+  .notes :global(img) {
+    max-width: 100%;
+    height: auto;
+  }
+  .notes :global(hr) {
+    border: 0;
+    border-top: 1px solid var(--c-border);
+  }
+</style>

@@ -1,0 +1,111 @@
+---
+// The "holoscan" radar beside the safety headline. Decorative: everything it says is in the text.
+const C = 220;
+const ticks = Array.from({ length: 24 }, (_, i) => {
+  const a = (i * 15 * Math.PI) / 180;
+  const major = i % 6 === 0;
+  const r0 = 200;
+  const r1 = major ? 212 : 206;
+  const p = (r: number) => [C + r * Math.sin(a), C - r * Math.cos(a)].map((n) => Math.round(n * 10) / 10);
+  const [x1, y1] = p(r0);
+  const [x2, y2] = p(r1);
+  return { x1, y1, x2, y2 };
+});
+const bearings = [
+  { t: '000°', x: 226, y: 4 },
+  { t: '090°', x: 400, y: 226 },
+  { t: '180°', x: 226, y: 424 },
+  { t: '270°', x: 4, y: 226 },
+];
+const targets = [
+  { name: 'SWTOR ON MAC', status: 'OFFICIAL MAC APP', x: 321, y: 141, tone: 'swtor' },
+  { name: 'SWGL ON MAC', status: 'OFFICIAL LAUNCHER', x: 93, y: 299, tone: 'swgl' },
+] as const;
+---
+
+<figure class="holoscope flex w-full max-w-[440px] flex-col items-center gap-4" aria-hidden="true">
+  <div class="relative aspect-square w-full">
+    <div class="sweep absolute inset-[4.545%] rounded-full"></div>
+    <svg class="absolute inset-0 h-full w-full overflow-visible" viewBox="0 0 440 440" focusable="false">
+      <g fill="none" class="stroke-line">
+        <circle cx={C} cy={C} r="200" class="stroke-line-strong" />
+        <circle cx={C} cy={C} r="150" />
+        <circle cx={C} cy={C} r="100" />
+        <circle cx={C} cy={C} r="50" />
+        <path d="M0 220.5H440M220.5 0V440" />
+      </g>
+      <g class="stroke-line-strong" stroke-width="1">
+        {ticks.map((t) => <line x1={t.x1} y1={t.y1} x2={t.x2} y2={t.y2} />)}
+      </g>
+      <g class="fill-fg-3 font-mono" font-size="9" letter-spacing="1" dominant-baseline="hanging">
+        {bearings.map((b) => <text x={b.x} y={b.y}>{b.t}</text>)}
+      </g>
+      {
+        targets.map((t) => (
+          <g class={t.tone === 'swtor' ? 'text-swtor' : 'text-swgl'}>
+            <circle class="halo" cx={t.x} cy={t.y} r="12" fill="none" stroke="currentColor" opacity="0.5" />
+            <circle cx={t.x} cy={t.y} r="4" fill="currentColor" />
+            <text x={t.x + 18} y={t.y - 14} class="font-mono" font-size="10" letter-spacing="1.5" fill="currentColor" dominant-baseline="hanging">
+              {t.name}
+            </text>
+            <text x={t.x + 18} y={t.y + 1} class="fill-fg-3 font-mono" font-size="9" letter-spacing="1.5" dominant-baseline="hanging">
+              {t.status}
+            </text>
+          </g>
+        ))
+      }
+      <circle cx={C} cy={C} r="3" class="fill-fg-2" />
+    </svg>
+  </div>
+  <figcaption class="font-mono text-[10px] tracking-[0.25em] text-fg-3">HOLOSCAN // 2 APPS · OFFICIAL CLIENTS</figcaption>
+</figure>
+
+<style>
+  /* A 62° wedge, brightest at its leading edge; it turns slowly unless motion is reduced. */
+  .sweep {
+    background: conic-gradient(from 10deg, transparent 0deg, var(--c-swgl) 62deg, transparent 62.5deg);
+    opacity: 0.3;
+    transform: rotate(0deg);
+  }
+  .sweep::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: 1px;
+    height: 50%;
+    background: linear-gradient(to top, transparent, var(--c-swgl));
+    transform-origin: 50% 100%;
+    transform: rotate(72deg);
+    opacity: 0.9;
+  }
+  :global([data-theme='light']) .sweep {
+    opacity: 0.22;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .sweep {
+      animation: sweep 9s linear infinite;
+    }
+    .halo {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: ping 3s ease-out infinite;
+    }
+  }
+  @keyframes sweep {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes ping {
+    0% {
+      transform: scale(0.6);
+      opacity: 0.8;
+    }
+    70%,
+    100% {
+      transform: scale(1.5);
+      opacity: 0;
+    }
+  }
+</style>

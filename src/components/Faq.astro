@@ -1,5 +1,146 @@
 ---
+import Starfield from './Starfield.astro';
+import Icon from './safety/Icon.astro';
+import { faq } from '../data/faq';
+import { links } from '../data/site';
 
+const supportLinks = [
+  { href: links.discord, label: 'Discord' },
+  { href: links.swtorIssues, label: 'SWTOR issues' },
+  { href: links.swglIssues, label: 'SWGL issues' },
+];
 ---
 
-<section id="faq" class="p-8 border-b border-line font-mono text-fg-3">Faq (stub)</section>
+<section id="faq" class="relative overflow-hidden bg-bg" aria-labelledby="faq-title">
+  <Starfield seed={3} />
+  <div
+    class="relative mx-auto grid max-w-[1440px] gap-7 px-5 pt-20 pb-[72px] sm:px-10 lg:px-20 lg:pt-[140px] lg:pb-32 xl:grid-cols-[minmax(0,380px)_minmax(0,1fr)] xl:grid-rows-[auto_1fr] xl:gap-x-24"
+  >
+    <header class="flex flex-col gap-7">
+      <p class="font-mono text-[11px] tracking-[0.15em] text-fg-2 sm:text-xs sm:tracking-[0.2em]" aria-hidden="true">
+        // SECTOR 03.B — COMMS LOG
+      </p>
+      <h2
+        id="faq-title"
+        class="font-display text-[clamp(1.75rem,8.2vw,2.75rem)] leading-[1.05] font-bold tracking-[-0.03em] text-fg"
+      >
+        Questions before the jump
+      </h2>
+    </header>
+
+    <div class="border-t border-line-strong xl:col-start-2 xl:row-span-2 xl:row-start-1 xl:self-start">
+      {
+        faq.map((item, i) => {
+          const idx = `Q.${String(i + 1).padStart(2, '0')}`;
+          return (
+            <details class="group relative border-b border-line open:bg-bg-raised" open={i === 0}>
+              <span
+                class="absolute inset-y-0 left-0 hidden w-0.5 bg-linear-to-b from-swtor to-swgl group-open:block"
+                aria-hidden="true"
+              />
+              <summary class="flex cursor-pointer list-none items-start gap-3.5 px-4 py-[18px] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-swgl sm:items-center sm:gap-6 sm:px-6 sm:py-7 [&::-webkit-details-marker]:hidden">
+                <span class="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:items-center sm:gap-6">
+                  <span
+                    class="font-mono text-[10px] tracking-[0.15em] text-fg-3 group-open:text-fg sm:w-12 sm:shrink-0 sm:text-[11px] sm:tracking-[0.25em]"
+                    aria-hidden="true"
+                  >
+                    {idx}
+                  </span>
+                  <span class="flex min-w-0 flex-1 flex-wrap items-center gap-x-6 gap-y-2">
+                  <span class="grow basis-[17rem] text-lg leading-tight font-medium tracking-[-0.01em] text-fg sm:text-[22px] sm:font-semibold">
+                    {item.q}
+                  </span>
+                  {item.tag && (
+                    <span
+                      class:list={[
+                        'border px-2 py-1 font-mono text-[10px] leading-[13px] tracking-[0.15em] whitespace-nowrap uppercase sm:px-2.5 sm:py-[5px]',
+                        item.tag.tone === 'warning'
+                          ? 'border-warning bg-warning-soft text-warning'
+                          : 'border-line-strong text-fg-2',
+                      ]}
+                    >
+                      {item.tag.text}
+                    </span>
+                  )}
+                  </span>
+                </span>
+                <span
+                  class="grid size-11 shrink-0 place-items-center border border-line-strong text-fg-2 group-open:border-fg group-open:bg-fg group-open:text-bg sm:size-8"
+                  aria-hidden="true"
+                >
+                  <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <path d="M5 12h14" />
+                    <path d="M12 5v14" class="group-open:hidden" />
+                  </svg>
+                </span>
+              </summary>
+              <div class="flex flex-col gap-3.5 px-4 pb-[22px] sm:gap-5 sm:pr-20 sm:pb-8 sm:pl-24">
+                <div class="faq-answer flex flex-col gap-3 text-[15px] leading-[1.6] text-fg-2 sm:text-[17px] sm:leading-[1.65]">
+                  {item.a.map((p) => <p set:html={p} />)}
+                </div>
+                {item.ref && (
+                  <p class="flex flex-wrap items-center gap-x-5 gap-y-1 font-mono text-[10px] tracking-[0.15em] uppercase sm:tracking-[0.2em]">
+                    {item.ref.href ? (
+                      <a
+                        href={item.ref.href}
+                        class="text-fg-3 underline-offset-4 hover:text-fg-2 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-swgl"
+                      >
+                        {item.ref.text}
+                      </a>
+                    ) : (
+                      <span class="text-fg-3">{item.ref.text}</span>
+                    )}
+                    {item.ref.status && (
+                      <>
+                        <span class="hidden h-px w-12 bg-line-strong sm:block" aria-hidden="true" />
+                        <span class="text-fg">{item.ref.status}</span>
+                      </>
+                    )}
+                  </p>
+                )}
+              </div>
+            </details>
+          );
+        })
+      }
+    </div>
+    <div class="flex max-w-[560px] flex-col gap-5 xl:col-start-1 xl:row-start-2">
+      <p class="text-sm leading-[1.6] text-fg-2 sm:text-[15px]">
+        Still stuck? Ask Pharaphobia on Discord or open a GitHub issue. Never contact Broadsword, SWTOR support or the SWG
+        Legends team about these apps.
+      </p>
+      <ul class="flex flex-wrap gap-x-6 gap-y-3">
+        {
+          supportLinks.map((l) => (
+            <li>
+              <a
+                href={l.href}
+                class="inline-flex items-center gap-1.5 border-b border-line-strong pb-1 font-mono text-[11px] tracking-[0.25em] text-fg uppercase transition-colors hover:border-fg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-swgl"
+              >
+                {l.label}
+                <Icon name="arrow-up-right" class="size-3.5 text-fg-2" />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<style>
+  .faq-answer :global(a) {
+    color: var(--c-fg);
+    text-decoration: underline;
+    text-decoration-color: var(--c-swgl);
+    text-underline-offset: 3px;
+  }
+  .faq-answer :global(a:hover) {
+    color: var(--c-swgl);
+  }
+  .faq-answer :global(a:focus-visible) {
+    outline: 2px solid var(--c-swgl);
+    outline-offset: 2px;
+  }
+</style>

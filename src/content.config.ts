@@ -42,9 +42,7 @@ function parseNotes(html: string) {
 async function loadReleases(app: AppId) {
   const { repo } = apps[app];
   const headers: Record<string, string> = { Accept: 'application/vnd.github.html+json' };
-  if (import.meta.env.GITHUB_TOKEN ?? process.env.GITHUB_TOKEN) {
-    headers.Authorization = `Bearer ${import.meta.env.GITHUB_TOKEN ?? process.env.GITHUB_TOKEN}`;
-  }
+  if (process.env.GITHUB_TOKEN) headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
   const res = await fetch(`https://api.github.com/repos/${repo}/releases?per_page=100`, { headers });
   if (!res.ok) throw new Error(`GitHub releases of ${repo}: ${res.status} ${res.statusText}`);
   const releases = (await res.json()) as GitHubRelease[];
@@ -74,8 +72,8 @@ const releases = defineCollection({
     version: z.string(),
     title: z.string(),
     publishedAt: z.coerce.date(),
-    url: z.string().url(),
-    dmgUrl: z.string().url(),
+    url: z.url(),
+    dmgUrl: z.url(),
     summary: z.string(),
     bodyHtml: z.string(),
   }),

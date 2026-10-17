@@ -1,5 +1,160 @@
 ---
+import Icon from './safety/Icon.astro';
+import { links } from '../data/site';
 
+// Hyperspace streaks (decorative): [x, y, width, height, tone] on the 1440 px design canvas.
+const streaks: [number, number, number, number, 'swgl' | 'swtor' | 'fg'][] = [
+  [780, 40, 520, 2, 'swgl'],
+  [1100, 78, 300, 1, 'fg'],
+  [900, 112, 620, 1, 'fg'],
+  [1260, 150, 180, 2, 'swtor'],
+  [700, 196, 420, 1, 'fg'],
+  [1180, 232, 700, 1, 'fg'],
+  [980, 268, 260, 2, 'swgl'],
+  [820, 310, 540, 1, 'fg'],
+  [1320, 352, 380, 1, 'fg'],
+  [760, 398, 640, 2, 'swtor'],
+  [1040, 436, 220, 1, 'fg'],
+  [880, 478, 480, 1, 'fg'],
+  [1200, 520, 300, 2, 'swgl'],
+  [940, 560, 560, 1, 'fg'],
+];
+const pct = (n: number) => `${((n / 1440) * 100).toFixed(2)}%`;
+
+const issues = [
+  { href: links.swtorIssues, label: 'SWTOR on Mac', app: 'app-swtor' },
+  { href: links.swglIssues, label: 'SWGL on Mac', app: 'app-swgl' },
+];
 ---
 
-<section id="support" class="p-8 border-b border-line font-mono text-fg-3">Support (stub)</section>
+<section id="support" class="relative overflow-hidden border-y border-line bg-bg-raised" aria-labelledby="support-title">
+  <div class="pointer-events-none absolute inset-0" aria-hidden="true">
+    {
+      streaks.map(([x, y, w, h, tone]) => (
+        <span
+          class={`streak streak-${tone} absolute`}
+          style={`left:${pct(x)};top:${y}px;width:${pct(w)};height:${h}px`}
+        />
+      ))
+    }
+  </div>
+
+  <div class="relative mx-auto flex max-w-[1440px] flex-col gap-8 px-5 pt-14 sm:px-10 lg:gap-20 lg:px-24">
+    <div class="flex items-center justify-between gap-4 font-mono text-[10px] tracking-[0.15em] sm:text-xs sm:tracking-[0.2em]" aria-hidden="true">
+      <span class="text-fg-2">// SECTOR 05 — OPEN CHANNEL</span>
+      <span class="flex items-center gap-1.5 text-fg-3 sm:gap-2.5">
+        <span class="live size-[7px] rounded-full bg-swgl sm:size-2"></span>
+        <span class="sm:hidden">LIVE</span>
+        <span class="hidden sm:inline">RECEIVING · DISCORD + GITHUB</span>
+      </span>
+    </div>
+
+    <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,400px)] lg:gap-16">
+      <div class="flex flex-col gap-7 lg:pt-3">
+        <h2
+          id="support-title"
+          class="font-display text-[clamp(2.25rem,9.8vw,4.5rem)] leading-[0.98] font-extrabold tracking-[-0.04em] text-fg"
+        >
+          Stuck?<br />Hail Pharaphobia.
+        </h2>
+        <p class="max-w-[560px] text-base leading-[1.6] text-fg-2 sm:text-[17px]">
+          Help for both apps comes from Pharaphobia on Discord or through GitHub issues. For a bug, choose <strong class="font-medium text-fg"
+            >Collect Logs…</strong
+          > in the app first: it saves a zip with the logs,
+          without your account name or password.
+        </p>
+      </div>
+
+      <ul class="relative flex flex-col bg-bg-raised">
+        <li class="app-swgl">
+          <a
+            href={links.discord}
+            class="group flex items-center gap-4 border-t border-line-strong py-5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent sm:gap-5 sm:py-7"
+          >
+            <span class="grid size-11 shrink-0 place-items-center border border-accent text-accent sm:size-[52px]">
+              <Icon name="message-circle" class="size-5 sm:size-[22px]" />
+            </span>
+            <span class="flex min-w-0 flex-1 flex-col gap-1 sm:gap-1.5">
+              <span class="font-display text-[17px] font-semibold text-fg transition-colors group-hover:text-accent sm:text-[22px]">
+                Join the Discord
+              </span>
+              <span class="text-[13px] leading-normal text-fg-3 sm:text-sm">Questions and help · ask Pharaphobia</span>
+            </span>
+            <Icon
+              name="arrow-up-right"
+              class="size-5 shrink-0 text-fg transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 sm:size-6"
+            />
+          </a>
+        </li>
+        <li class="app-swtor flex items-center gap-4 border-t border-line-strong py-5 sm:gap-5 sm:py-7">
+          <span class="grid size-11 shrink-0 place-items-center self-start border border-accent text-accent sm:size-[52px] sm:self-center">
+            <Icon name="github" class="size-5 sm:size-[22px]" />
+          </span>
+          <div class="flex min-w-0 flex-1 flex-col gap-1 sm:gap-1.5">
+            <h3 class="font-display text-[17px] font-semibold text-fg sm:text-[22px]">Open a GitHub issue</h3>
+            <p class="text-[13px] leading-normal text-fg-3 sm:text-sm">Bugs and feature requests · attach your logs</p>
+            <ul class="mt-1.5 flex flex-wrap gap-x-5 gap-y-2">
+              {
+                issues.map((r) => (
+                  <li class={r.app}>
+                    <a
+                      href={r.href}
+                      class="inline-flex items-center gap-1.5 border-b border-accent pb-0.5 font-mono text-[11px] tracking-[0.12em] text-fg uppercase transition-colors hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                    >
+                      {r.label}
+                      <Icon name="arrow-up-right" class="size-3.5 text-accent" />
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <div
+      class="flex flex-col items-start gap-3 border-t border-warning pt-5 pb-7 sm:flex-row sm:items-center sm:gap-5 sm:py-[22px]"
+      role="note"
+    >
+      <span
+        class="inline-flex shrink-0 items-center gap-2 bg-warning px-2 py-[5px] font-mono text-[10px] font-bold tracking-[0.15em] text-[#05060a] sm:px-2.5 sm:py-1.5 sm:text-[11px] sm:tracking-[0.2em]"
+      >
+        <Icon name="octagon-alert" class="size-3.5" />
+        RESTRICTED FREQUENCY
+      </span>
+      <p class="text-[15px] leading-normal font-medium text-fg sm:text-base">
+        Never contact Broadsword, SWTOR support or the SWG Legends team about these apps. They don't make them and can't
+        help with them.
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .streak {
+    background: linear-gradient(to right, var(--tone), transparent);
+  }
+  .streak-fg {
+    --tone: var(--c-fg);
+    opacity: 0.18;
+  }
+  .streak-swgl {
+    --tone: var(--c-swgl);
+    opacity: 0.55;
+  }
+  .streak-swtor {
+    --tone: var(--c-swtor);
+    opacity: 0.55;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .live {
+      animation: live 2.4s ease-in-out infinite;
+    }
+  }
+  @keyframes live {
+    50% {
+      opacity: 0.35;
+    }
+  }
+</style>

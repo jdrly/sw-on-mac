@@ -1,0 +1,48 @@
+---
+// SWTOR only: median FPS, official app vs SWTOR on Mac. Values from src/data/benchmark.ts.
+import Icon from './Icon.astro';
+import { benchmark } from '../../data/benchmark';
+
+const max = Math.max(benchmark.official, benchmark.swtorOnMac);
+const readouts = [
+  { label: 'Official app', value: benchmark.official, ours: false },
+  { label: 'SWTOR on Mac', value: benchmark.swtorOnMac, ours: true },
+];
+---
+
+<section aria-labelledby="swtor-telemetry" class="border-l-2 border-accent bg-accent-soft p-5 sm:p-6">
+  <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 whitespace-nowrap">
+    <h3 id="swtor-telemetry" class="font-mono text-[10px] font-semibold tracking-[0.16em] text-accent uppercase sm:text-[11px] sm:tracking-[0.2em]">
+      <span aria-hidden="true">// </span>Telemetry — median FPS
+    </h3>
+    {
+      !benchmark.measured && (
+        <p class="shrink-0 font-mono text-[9px] tracking-[0.18em] text-fg-3 uppercase sm:text-[10px] sm:tracking-[0.22em]">
+          Sample data
+        </p>
+      )
+    }
+  </div>
+
+  <div class="mt-[18px] grid grid-cols-[1fr_auto_1fr] items-end gap-4 sm:mt-5">
+    {
+      readouts.map((r, i) => (
+        <>
+          {i === 1 && <Icon name="arrow-right" class="size-[18px] text-accent sm:size-5" />}
+          <dl class="flex flex-col gap-2">
+            <dt class="font-mono text-[9px] tracking-[0.2em] text-fg-3 uppercase sm:text-[10px] sm:tracking-[0.22em]">{r.label}</dt>
+            <dd class:list={['flex items-baseline gap-1.5', r.ours ? 'text-accent' : 'text-fg-3']}>
+              <span class="font-display text-[52px] leading-none font-bold tracking-[-0.03em] sm:text-[64px]">{r.value}</span>
+              <span class="font-mono text-[11px] tracking-[0.2em]">FPS</span>
+            </dd>
+            <dd class="h-1 bg-line" aria-hidden="true">
+              <div class:list={['h-full', r.ours ? 'bg-accent' : 'bg-fg-3']} style={`width:${(r.value / max) * 100}%`} />
+            </dd>
+          </dl>
+        </>
+      ))
+    }
+  </div>
+
+  <p class="mt-[18px] text-[13px] leading-normal text-fg-2 sm:mt-5">{benchmark.note}</p>
+</section>
