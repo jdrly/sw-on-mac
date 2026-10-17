@@ -22,7 +22,7 @@ const facts: Fact[] = [
     id: 'fact-01',
     code: 'SYS.INTEGRITY',
     title: 'Not a game mod',
-    text: 'Neither app edits the game. They change how your Mac runs and draws it (Direct3D 9 goes to Metal through d9mt) and leave the game client as it ships.',
+    text: 'Neither app edits the game. They change how your Mac runs and draws it, with d9mt turning Direct3D 9 into Metal, and leave the game client as it ships.',
     gauges: [
       { key: 'GAME FILES', value: 'UNCHANGED' },
       { key: 'MEMORY', value: 'UNTOUCHED' },
@@ -34,7 +34,7 @@ const facts: Fact[] = [
     id: 'fact-02',
     code: 'CODE.SIGNATURE',
     title: 'Signed & notarized',
-    text: 'Every release is signed with a Developer ID and notarized by Apple, so macOS can check where it came from before it opens.',
+    text: 'I sign every release with my Developer ID and Apple notarizes it, so macOS can check where it came from before it opens.',
     gauges: [
       { key: 'DEVELOPER ID', value: 'SIGNED' },
       { key: 'APPLE', value: 'NOTARIZED' },
@@ -45,7 +45,7 @@ const facts: Fact[] = [
     id: 'fact-03',
     code: 'SOURCE.ACCESS',
     title: 'Open source',
-    text: 'The code is public on GitHub under the zlib licence; the parts the apps bundle, like d9mt and Wine, keep their own licences. Read it, build it yourself or fork it.',
+    text: 'The code is on GitHub under the zlib licence. Bundled parts like d9mt and Wine keep their own licences. Read it, build it yourself or fork it.',
     repos: true,
     summary: 'PUBLIC',
   },
@@ -53,7 +53,7 @@ const facts: Fact[] = [
     id: 'fact-04',
     code: 'ROLLBACK',
     title: 'Fully reversible',
-    text: 'Uninstall in SWTOR on Mac puts the official SWTOR app back exactly as Broadsword ships it and copies your game settings back. SWGL on Mac has nothing to undo: it keeps the game and everything else in its own folder.',
+    text: 'Uninstall in SWTOR on Mac puts the official SWTOR app back exactly as Broadsword ships it and copies your game settings back. SWGL on Mac has nothing to undo, because it keeps the game and everything else in its own folder.',
     restore: true,
     swtorOnly: true,
     summary: 'REVERSIBLE',
@@ -110,7 +110,7 @@ const chip =
         >
           <span class="h-0.5 w-3.5 bg-swtor sm:w-4"></span>
           <span class="h-0.5 w-3.5 bg-swgl sm:w-4"></span>
-          <span class="ml-1 sm:ml-0">// SECTOR 03 — WHAT IT TOUCHES</span>
+          <span class="ml-1 sm:ml-0">// SECTOR 03 · WHAT IT TOUCHES</span>
         </p>
         <h2
           id="safety-title"
@@ -119,9 +119,8 @@ const chip =
           Is it safe?
         </h2>
         <p class="max-w-[640px] text-base leading-[1.6] text-fg-2 sm:text-xl sm:leading-[1.5]">
-          Here's what the apps change and what they leave alone. Both run the official game clients unchanged; what they
-          change is the layer that runs and draws them on your Mac. They're unofficial fan projects, so you use them at
-          your own risk.
+          I'd rather show you than just say yes. Both apps change the layer between the game and your Mac and leave the
+          game itself alone. They're also unofficial, so you use them at your own risk.
         </p>
         <dl class="grid w-full max-w-[440px] grid-cols-[auto_minmax(0,1fr)_auto] border border-line-strong bg-bg-raised">
           {
@@ -231,7 +230,7 @@ const chip =
                   {f.swtorOnly ? (
                     <li class={`${chip} border-line text-fg-3`}>
                       <span class="size-1.5 bg-line-strong" aria-hidden="true" />
-                      <span aria-hidden="true">SWGL — N/A</span>
+                      <span aria-hidden="true">SWGL · N/A</span>
                       <span class="sr-only">SWGL: not applicable</span>
                     </li>
                   ) : (

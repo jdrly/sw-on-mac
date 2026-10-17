@@ -70,7 +70,7 @@ const focus = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visi
       class="relative grid grid-cols-[1fr_auto] gap-x-4 gap-y-2 border-b border-line-strong pb-3.5 font-mono text-[10px] tracking-[0.16em] text-fg-3 uppercase lg:pb-4 lg:text-[11px] lg:tracking-[0.2em] xl:flex xl:items-center xl:justify-between"
     >
       <p class="text-[11px] font-semibold tracking-[0.2em] whitespace-nowrap text-accent" aria-hidden="true">
-        // Sector {hud.sector} — {app.short}
+        // Sector {hud.sector} · {app.short}
       </p>
       <p class="self-center text-right xl:hidden" aria-hidden="true">App {hud.index}</p>
       <p class="col-span-2 leading-[1.6] lg:leading-normal">{app.kicker}</p>
@@ -141,7 +141,7 @@ const focus = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visi
     <div class="grid gap-9 lg:grid-cols-[760fr_472fr] lg:gap-x-12 lg:gap-y-14">
       <figure class="grid grid-cols-[1fr_auto] content-start gap-x-4 gap-y-2.5 lg:gap-y-3">
         <p class="font-mono text-[10px] tracking-[0.18em] whitespace-nowrap text-fg-2 uppercase lg:text-[11px] lg:tracking-[0.2em]" aria-hidden="true">
-          Fig. {hud.fig} — App window
+          Fig. {hud.fig} · App window
         </p>
         <figcaption
           class="col-span-2 row-start-3 font-mono text-[10px] tracking-[0.16em] text-fg-3 uppercase lg:col-span-1 lg:col-start-2 lg:row-start-1 lg:text-right lg:text-[11px] lg:tracking-[0.2em]"
@@ -194,7 +194,7 @@ const focus = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visi
 
       <div>
         <h3 class={label}>
-          <span aria-hidden="true">// </span>Capabilities — {pad2(app.features.length)} modules
+          <span aria-hidden="true">// </span>Capabilities · {pad2(app.features.length)} modules
         </h3>
         <ol class="mt-4 grid sm:mt-5 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-5 xl:grid-cols-3">
           {
@@ -218,7 +218,7 @@ const focus = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visi
 
       <div>
         <h3 class={label}>
-          <span aria-hidden="true">// </span>Launch sequence — {app.steps.length} steps
+          <span aria-hidden="true">// </span>Launch sequence · {app.steps.length} steps
         </h3>
         <ol class="mt-4 sm:mt-5">
           {

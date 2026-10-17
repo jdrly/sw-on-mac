@@ -16,7 +16,7 @@ const playOr = play.length > 1 ? `${play.slice(0, -1).join(', ')} or ${play.at(-
       <div class="flex items-center justify-between gap-4 text-warning">
         <p class="flex items-center gap-2.5 font-mono text-[11px] font-bold tracking-[0.2em] uppercase">
           <Icon name="triangle-alert" class="size-4" />
-          Advisory — Rosetta
+          Advisory · Rosetta
         </p>
         <p class="font-mono text-[10px] tracking-[0.2em] uppercase" aria-hidden="true">
           Priority 1
@@ -30,8 +30,8 @@ const playOr = play.length > 1 ? `${play.slice(0, -1).join(', ')} or ${play.at(-
         Don't upgrade a Mac you play on to {hold} yet
       </h3>
       <p class="mt-3.5 text-sm leading-[1.55] text-fg-2">
-        Works on macOS {playList}, and installs Rosetta for you if it's missing. Apple is winding Rosetta down
-        after macOS {play.at(-1)}, so stay on {playOr} until a release here says {hold} works.
+        Works on macOS {playList} and installs Rosetta for you if it's missing. From {hold}, Apple keeps Rosetta only
+        for certain older games, so stay on {playOr} until a release here says {hold} works.
       </p>
 
       <ul class="mt-3.5 grid grid-cols-3 gap-3.5 pt-2" aria-label="SWGL on Mac by macOS version">
