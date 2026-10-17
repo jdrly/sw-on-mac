@@ -1,0 +1,99 @@
+@import "tailwindcss";
+
+/* Design tokens from docs/swonmac.pen. Dark is the default; <html data-theme="light"> switches. */
+@custom-variant light (&:where([data-theme=light], [data-theme=light] *));
+
+:root {
+  color-scheme: dark;
+  --c-bg: #05060a;
+  --c-bg-raised: #0b0d14;
+  --c-surface: #10131c;
+  --c-border: #1d2230;
+  --c-border-strong: #2c3345;
+  --c-fg: #eef1f6;
+  --c-fg-2: #9aa3b5;
+  --c-fg-3: #5d6577;
+  --c-swtor: #ff3d2e;
+  --c-swtor-soft: #ff3d2e1f;
+  --c-swgl: #2fd5ff;
+  --c-swgl-soft: #2fd5ff1f;
+  --c-warning: #ffb020;
+  --c-warning-soft: #ffb0201a;
+  --c-on-accent: #05060a;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+  --c-bg: #f3f1ec;
+  --c-bg-raised: #ffffff;
+  --c-surface: #e9e6df;
+  --c-border: #d3cfc5;
+  --c-border-strong: #b5b0a4;
+  --c-fg: #0b0d14;
+  --c-fg-2: #4a4f5c;
+  --c-fg-3: #7a7f8a;
+  --c-swtor: #d42a1c;
+  --c-swtor-soft: #d42a1c14;
+  --c-swgl: #0a8db8;
+  --c-swgl-soft: #0a8db814;
+  --c-warning: #b86e00;
+  --c-warning-soft: #b86e0014;
+  --c-on-accent: #ffffff;
+}
+
+/* Per-app accent: put .app-swtor or .app-swgl on a wrapper, then use text-accent, bg-accent-soft… */
+.app-swtor {
+  --c-accent: var(--c-swtor);
+  --c-accent-soft: var(--c-swtor-soft);
+}
+.app-swgl {
+  --c-accent: var(--c-swgl);
+  --c-accent-soft: var(--c-swgl-soft);
+}
+
+@theme inline {
+  --color-bg: var(--c-bg);
+  --color-bg-raised: var(--c-bg-raised);
+  --color-surface: var(--c-surface);
+  --color-line: var(--c-border);
+  --color-line-strong: var(--c-border-strong);
+  --color-fg: var(--c-fg);
+  --color-fg-2: var(--c-fg-2);
+  --color-fg-3: var(--c-fg-3);
+  --color-swtor: var(--c-swtor);
+  --color-swtor-soft: var(--c-swtor-soft);
+  --color-swgl: var(--c-swgl);
+  --color-swgl-soft: var(--c-swgl-soft);
+  --color-accent: var(--c-accent);
+  --color-accent-soft: var(--c-accent-soft);
+  --color-warning: var(--c-warning);
+  --color-warning-soft: var(--c-warning-soft);
+  --color-on-accent: var(--c-on-accent);
+
+  --font-display: var(--font-unbounded);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-jetbrains-mono);
+}
+
+@layer base {
+  html {
+    background: var(--c-bg);
+    color: var(--c-fg);
+    font-family: var(--font-sans);
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+  :target,
+  section[id] {
+    scroll-margin-top: 5rem;
+  }
+  ::selection {
+    background: var(--c-swtor);
+    color: var(--c-on-accent);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+}

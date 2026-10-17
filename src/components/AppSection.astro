@@ -1,0 +1,8 @@
+---
+import type { App } from '../data/apps';
+import type { Release } from '../lib/releases';
+interface Props { app: App; release: Release | undefined }
+const { app } = Astro.props;
+---
+
+<section id={app.id} class="p-8 border-b border-line font-mono text-fg-3">AppSection {app.id} (stub)</section>
