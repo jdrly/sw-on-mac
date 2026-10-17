@@ -24,7 +24,7 @@ Open SWTOR on Mac and click *Update to 0.0.7* in the window (with the game close
 ### Support
 SWTOR on Mac is an unofficial project, not made, endorsed or supported by Broadsword Games, EA,
 Lucasfilm or Disney, and you use it at your own risk. Please send questions and bug reports to
-Pharaphobia on Discord or as a [GitHub issue](https://github.com/jdrly/swtor-on-mac/issues),
+Pharaphobia on [Discord](https://discord.gg/AnV3fZWz2b) or as a [GitHub issue](https://github.com/jdrly/swtor-on-mac/issues),
 never to Broadsword or SWTOR customer support.
 ```
 
@@ -50,11 +50,11 @@ never to Broadsword or SWTOR customer support.
 
 > SWTOR on Mac is an unofficial project, not made, endorsed or supported by Broadsword Games, EA,
 > Lucasfilm or Disney, and you use it at your own risk. Please send questions and bug reports to
-> Pharaphobia on Discord or as a [GitHub issue](https://github.com/jdrly/swtor-on-mac/issues),
+> Pharaphobia on [Discord](https://discord.gg/AnV3fZWz2b) or as a [GitHub issue](https://github.com/jdrly/swtor-on-mac/issues),
 > never to Broadsword or SWTOR customer support.
 
 **SWGL on Mac**
 
 > SWGL on Mac is an unofficial project, not made, endorsed or supported by the SWG Legends team.
-> Please send questions and bug reports to Pharaphobia on Discord or as a
+> Please send questions and bug reports to Pharaphobia on [Discord](https://discord.gg/AnV3fZWz2b) or as a
 > [GitHub issue](https://github.com/jdrly/swgl-on-mac/issues), never to the SWG Legends team.

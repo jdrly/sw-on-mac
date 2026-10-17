@@ -35,7 +35,11 @@ const issues = release.app === 'swtor' ? links.swtorIssues : links.swglIssues;
         <footer class="notes mt-2 border-t border-line pt-5">
           <h4 style="margin-top: 0">Support</h4>
           <Fragment set:html={support} />
-          <p>
+          <p class="flex flex-wrap gap-x-6 gap-y-1">
+            <a class="issues" href={links.discord}>
+              Discord
+              <span aria-hidden="true">↗</span>
+            </a>
             <a class="issues" href={issues}>
               {issues.replace(/^https:\/\//, '')}
               <span aria-hidden="true">↗</span>
