@@ -87,6 +87,15 @@
   section[id] {
     scroll-margin-top: 5rem;
   }
+  /* Tailwind 4 leaves buttons on the default cursor; every interactive element gets the pointer */
+  a[href],
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  summary,
+  label[for],
+  select {
+    cursor: pointer;
+  }
   ::selection {
     background: var(--c-swtor);
     color: var(--c-on-accent);
