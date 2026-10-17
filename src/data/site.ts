@@ -9,8 +9,7 @@ export const site = {
 
 export const links = {
   github: 'https://github.com/jdrly',
-  // TODO: the Discord invite (ask Jan)
-  discord: 'https://discord.gg/',
+  discord: 'https://discord.gg/AnV3fZWz2b',
   d9mt: 'https://github.com/jdrly/d9mt',
   swtorRepo: 'https://github.com/jdrly/swtor-on-mac',
   swglRepo: 'https://github.com/jdrly/swgl-on-mac',
