@@ -40,7 +40,7 @@ export const apps: Record<AppId, App> = {
     game: 'Star Wars: The Old Republic',
     tagline: 'Speeds up the official Star Wars: The Old Republic Mac app on Apple Silicon.',
     description:
-      'The official SWTOR Mac app draws the game through OpenGL on an older Wine. SWTOR on Mac swaps that for d9mt, which sends the game\'s Direct3D 9 straight to Metal, on a newer Wine.',
+      'The official SWTOR Mac app draws the game through OpenGL on an older Wine. SWTOR on Mac swaps that for d9mt, which sends the game\'s Direct3D 9 straight to Metal, on CrossOver 26.3 with Wine 11, the same engine SWGL on Mac uses.',
     kicker: 'Star Wars: The Old Republic · official Mac app, accelerated',
     screenshot: {
       light: swtorShot,
