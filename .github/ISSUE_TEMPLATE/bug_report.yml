@@ -1,0 +1,101 @@
+name: Bug report
+description: Something on swonmac.com is wrong or broken (a link, a download, a page, the text).
+title: ""
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! This form is for the **website** swonmac.com. A problem with one of
+        the apps belongs in its own repository:
+        [SWTOR on Mac](https://github.com/jdrly/swtor-on-mac/issues/new/choose) or
+        [SWGL on Mac](https://github.com/jdrly/swgl-on-mac/issues/new/choose).
+
+        If you can, write the title as `Context: What is wrong`, for example
+        `Release log: The newest SWGL release is folded away`.
+
+  - type: textarea
+    id: observed
+    attributes:
+      label: What happens
+      description: What you see. Quote a wrong text word for word; a screenshot helps.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+      description: What should be there instead, and why you think so (for example the release on GitHub).
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      value: |
+        1. Open https://swonmac.com/
+        2.
+        3.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impact
+      options:
+        - A download or install link is broken or points to the wrong file
+        - Wrong information (version, date, requirements, support)
+        - A page or section doesn't work (layout, menu, filter)
+        - Cosmetic
+    validations:
+      required: true
+
+  - type: dropdown
+    id: browser
+    attributes:
+      label: Browser
+      options:
+        - Safari
+        - Chrome or another Chromium browser
+        - Firefox
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: device
+    attributes:
+      label: Device
+      options:
+        - Mac
+        - iPhone
+        - iPad
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: theme
+    attributes:
+      label: Theme
+      options:
+        - Dark
+        - Light
+        - Auto (follows the system)
+        - I don't know
+    validations:
+      required: false
+
+  - type: dropdown
+    id: regression
+    attributes:
+      label: Was it right before?
+      options:
+        - I don't know
+        - "Yes, it used to be right"
+        - "No, it was always like this"
+    validations:
+      required: true

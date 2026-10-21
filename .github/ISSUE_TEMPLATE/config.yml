@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: A problem with SWTOR on Mac
+    url: https://github.com/jdrly/swtor-on-mac/issues/new/choose
+    about: Bugs and ideas for the SWTOR on Mac app go to its own repository.
+  - name: A problem with SWGL on Mac
+    url: https://github.com/jdrly/swgl-on-mac/issues/new/choose
+    about: Bugs and ideas for the SWGL on Mac app go to its own repository.
+  - name: Ask Pharaphobia on Discord
+    url: https://discord.gg/AnV3fZWz2b
+    about: Questions and help for both apps, from their developer.
