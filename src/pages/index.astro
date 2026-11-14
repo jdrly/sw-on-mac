@@ -8,6 +8,7 @@ import Faq from '../components/Faq.astro';
 import Releases from '../components/Releases.astro';
 import Support from '../components/Support.astro';
 import Footer from '../components/Footer.astro';
+import StructuredData from '../components/StructuredData.astro';
 import { apps } from '../data/apps';
 import { getLatest, getReleases } from '../lib/releases';
 
@@ -16,6 +17,7 @@ const latest = await getLatest();
 ---
 
 <Base>
+  <StructuredData slot="head" latest={latest} />
   <Header />
   <main>
     <Hero latest={latest} />

@@ -1,9 +1,10 @@
 export const site = {
   name: 'SW on Mac',
   url: 'https://swonmac.com',
-  title: 'SW on Mac: Star Wars games on Apple Silicon Macs',
+  // The search result: the apps' names first, since that is what people search for
+  title: 'SWTOR on Mac & SWGL on Mac: Star Wars games on Apple Silicon',
   description:
-    'Two free apps for Apple Silicon Macs. SWTOR on Mac speeds up the official SWTOR Mac app, and SWGL on Mac runs SWG Legends, which has no Mac version of its own.',
+    'SWTOR on Mac speeds up the official Star Wars: The Old Republic Mac app on Apple Silicon. SWGL on Mac plays Star Wars Galaxies on SWG Legends. Both are free.',
   author: 'Pharaphobia',
 };
 

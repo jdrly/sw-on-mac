@@ -1,0 +1,72 @@
+---
+// schema.org data for search engines: the site, its author, both apps with their newest
+// release, and the FAQ. Everything comes from src/data and the releases, like the page itself.
+import { apps, type AppId } from '../data/apps';
+import { faq } from '../data/faq';
+import { links, site } from '../data/site';
+import type { Release } from '../lib/releases';
+
+interface Props {
+  latest: Record<AppId, Release | undefined>;
+}
+
+const { latest } = Astro.props;
+const home = new URL('/', Astro.site).href;
+const author = { '@id': `${home}#author` };
+
+const graph = [
+  {
+    '@type': 'WebSite',
+    '@id': `${home}#website`,
+    url: home,
+    name: site.name,
+    description: site.description,
+    inLanguage: 'en',
+    publisher: author,
+  },
+  {
+    '@type': 'Person',
+    '@id': `${home}#author`,
+    name: site.author,
+    url: links.github,
+    sameAs: [links.github],
+  },
+  ...(Object.keys(apps) as AppId[]).map((id) => {
+    const app = apps[id];
+    const release = latest[id];
+    return {
+      '@type': 'SoftwareApplication',
+      '@id': `${home}#${id}`,
+      name: app.name,
+      url: `${home}#${id}`,
+      description: `${app.tagline} ${app.description}`,
+      applicationCategory: 'GameApplication',
+      operatingSystem: 'macOS 26 or later, Apple Silicon',
+      isAccessibleForFree: true,
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+      author,
+      sameAs: [`https://github.com/${app.repo}`],
+      license: `https://github.com/${app.repo}/blob/main/LICENSE`,
+      screenshot: new URL(app.screenshot.dark.src, Astro.site).href,
+      ...(release && {
+        softwareVersion: release.version,
+        datePublished: release.publishedAt.toISOString(),
+        downloadUrl: release.dmgUrl,
+      }),
+    };
+  }),
+  {
+    '@type': 'FAQPage',
+    '@id': `${home}#faq`,
+    mainEntity: faq.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a.map((p) => `<p>${p}</p>`).join('') },
+    })),
+  },
+];
+
+const json = JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }).replace(/</g, '\\u003c');
+---
+
+<script type="application/ld+json" is:inline set:html={json} />
